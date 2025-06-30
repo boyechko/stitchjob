@@ -19,42 +19,46 @@ def format_experience_section(heading, experiences):
         latex += "\\end{itemize}\n\n"
     return latex
 
+def experience_sections():
+    latex = ''
+    exp_containers = root.findall("experiences")
+    for container in exp_containers:
+        heading = container.findtext("heading")
+        exps = []
+        for exp_sec in container.findall("experience"):
+            exp = {
+                "title": exp_sec.findtext("title"),
+                "organization": exp_sec.findtext("organization"),
+                "location": exp_sec.findtext("location"),
+                "blurb": exp_sec.findtext("blurb").strip(),
+                "begin": exp_sec.findtext("dates/begin"),
+                "end": exp_sec.findtext("dates/end"),
+                "items": [item.text.strip() for item in exp_sec.findall(".//item")],
+            }
+            exps.append(exp)
+        latex += format_experience_section(heading, exps)
+    return latex
+
+def build_resume():
+    latex = "\\documentclass{rb-resume}\n"
+    latex += r'''
+    \setname{%(name)s}
+    \setemail{%(email)s}
+    \setphone{%(phone)s}
+    \setlocation{%(location)s}
+    ''' % {
+        "name": root.findtext("contact/name"),
+        "email": root.findtext("contact/email"),
+        "phone": root.findtext("contact/phone"),
+        "location": root.findtext("contact/location"),
+    }
+    latex += "\n\\begin{document}\n\n"
+    latex += experience_sections()
+    latex += "\\end{document}\n"
+    return latex
+
 tree = ET.parse("resume.xml")
 root = tree.getroot()
 
-latex = "\\documentclass{rb-resume}\n"
-latex += r'''
-\setname{%(name)s}
-\setemail{%(email)s}
-\setphone{%(phone)s}
-\setlocation{%(location)s}
-''' % {
-    "name": root.findtext("contact/name"),
-    "email": root.findtext("contact/email"),
-    "phone": root.findtext("contact/phone"),
-    "location": root.findtext("contact/location"),
-}
-latex += "\n\\begin{document}\n\n"
-
-exp_containers = root.findall("experiences")
-for container in exp_containers:
-    heading = container.findtext("heading")
-    exps = []
-    for exp_sec in container.findall("experience"):
-        exp = {
-            "title": exp_sec.findtext("title"),
-            "organization": exp_sec.findtext("organization"),
-            "location": exp_sec.findtext("location"),
-            "blurb": exp_sec.findtext("blurb").strip(),
-            "begin": exp_sec.findtext("dates/begin"),
-            "end": exp_sec.findtext("dates/end"),
-            "items": [item.text.strip() for item in exp_sec.findall(".//item")],
-        }
-        exps.append(exp)
-    latex += format_experience_section(heading, exps)
-
-latex += "\\end{document}\n"
-
 with open("resume.tex", "w") as f:
-    f.write(latex)
-
+    f.write(build_resume())
