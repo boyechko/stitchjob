@@ -1,5 +1,14 @@
 import xml.etree.ElementTree as ET
 
+LATEX_ESCAPE = {
+    "&": "\\&", "%": "\\%", "$": "\\$", "#": "\\#",
+    "_": "\\_", "{": "\\{", "}": "\\}", "~": "\\textasciitilde{}",
+    "^": "\\textasciicircum{}", "\\": "\\textbackslash{}"
+}
+
+def escape_latex(text):
+    return "".join(LATEX_ESCAPE.get(c, c) for c in text)
+
 class Resume:
     def __init__(self, element):
         self.name = element.findtext("contact/name")
@@ -26,7 +35,7 @@ class ExperienceSection:
         self.experiences = [Experience(exp_el) for exp_el in element.findall("experience")]
 
     def to_latex(self):
-        latex = f"\\section*{{{self.heading}}}\n"
+        latex = f"\\section*{{{escape_latex(self.heading)}}}\n"
         for exp in self.experiences:
             latex += exp.to_latex() + "\n"
         return latex
@@ -42,13 +51,21 @@ class Experience:
         self.items = [item.text.strip() for item in element.findall("items/item")]
 
     def to_latex(self):
-        latex = f"\\datedsubsection{{{self.title}}}{{{self.begin} -- {self.end}}}\n"
-        latex += f"\\organization{{{self.organization}}}{{{self.location}}}\n"
+        latex = r"""
+        \datedsubsection{%(title)s}{%(begin)s -- %(end)s}
+        \organization{%(organization)s}{%(location)s}
+        """ % {
+            'title': escape_latex(self.title),
+            'begin': escape_latex(self.begin),
+            'end': escape_latex(self.end),
+            'organization': escape_latex(self.organization),
+            'location': escape_latex(self.location)
+        }
         if self.blurb:
-            latex += f"\\organizationblurb{{{self.blurb}}}\n"
+            latex += f"\\organizationblurb{{{escape_latex(self.blurb)}}}\n"
         latex += "\\begin{itemize}\n"
         for item in self.items:
-            latex += f"  \\item {item}\n"
+            latex += f"  \\item {escape_latex(item)}\n"
         latex += "\\end{itemize}\n"
         return latex
 
