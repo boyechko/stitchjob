@@ -1,64 +1,60 @@
 import xml.etree.ElementTree as ET
 
-def format_experience_section(heading, experiences):
-    latex = r"\section*{%(heading)s}" % {'heading': heading}
-    latex += "\n"
-    for exp in experiences:
-        datedsubsection = r"\datedsubsection{%(title)s}{%(begin)s -- %(end)s}"
-        latex += datedsubsection % {'title': exp['title'],
-                                    'begin': exp['begin'],
-                                    'end': exp['end']}
-        organization = r"\organization{%(organization)s}{%(location)s}"
-        latex += "\n" + organization % {'organization': exp['organization'],
-                                        'location': exp['location']}
-        if exp.get("blurb"):
-            latex += f"\n\\organizationblurb{{{exp['blurb']}}}\n"
-        latex += "\n\\begin{itemize}\n"
-        for item in exp['items']:
+class Resume:
+    def __init__(self, element):
+        self.name = element.findtext("contact/name")
+        self.phone = element.findtext("contact/phone")
+        self.email = element.findtext("contact/email")
+        self.location = element.findtext("contact/location")
+        self.experience_sections = [ExperienceSection(exps_el) for exps_el in element.findall("experiences")]
+
+    def to_latex(self):
+        latex = "\\documentclass{rb-resume}\n"
+        latex += f"\\setname{{{self.name}}}\n"
+        latex += f"\\setemail{{{self.email}}}\n"
+        latex += f"\\setphone{{{self.phone}}}\n"
+        latex += f"\\setlocation{{{self.location}}}\n"
+        latex += "\n\\begin{document}\n\n"
+        for exp_sec in self.experience_sections:
+            latex += exp_sec.to_latex()
+        latex += "\\end{document}\n"
+        return latex
+
+class ExperienceSection:
+    def __init__(self, element):
+        self.heading = element.findtext("heading")
+        self.experiences = [Experience(exp_el) for exp_el in element.findall("experience")]
+
+    def to_latex(self):
+        latex = f"\\section*{{{self.heading}}}\n"
+        for exp in self.experiences:
+            latex += exp.to_latex() + "\n"
+        return latex
+
+class Experience:
+    def __init__(self, element):
+        self.title = element.findtext("title")
+        self.organization = element.findtext("organization")
+        self.location = element.findtext("location")
+        self.blurb = element.findtext("blurb").strip()
+        self.begin = element.attrib.get("begin", "???")
+        self.end = element.attrib.get("end", "???")
+        self.items = [item.text.strip() for item in element.findall("items/item")]
+
+    def to_latex(self):
+        latex = f"\\datedsubsection{{{self.title}}}{{{self.begin} -- {self.end}}}\n"
+        latex += f"\\organization{{{self.organization}}}{{{self.location}}}\n"
+        if self.blurb:
+            latex += f"\\organizationblurb{{{self.blurb}}}\n"
+        latex += "\\begin{itemize}\n"
+        for item in self.items:
             latex += f"  \\item {item}\n"
-        latex += "\\end{itemize}\n\n"
-    return latex
-
-def experience_sections():
-    latex = ''
-    exp_containers = root.findall("experiences")
-    for container in exp_containers:
-        heading = container.findtext("heading")
-        exps = []
-        for exp_sec in container.findall("experience"):
-            exp = {
-                "title": exp_sec.findtext("title"),
-                "organization": exp_sec.findtext("organization"),
-                "location": exp_sec.findtext("location"),
-                "blurb": exp_sec.findtext("blurb").strip(),
-                "begin": exp_sec.attrib.get("begin", "???"),
-                "end": exp_sec.attrib.get("end", "???"),
-                "items": [item.text.strip() for item in exp_sec.findall(".//item")],
-            }
-            exps.append(exp)
-        latex += format_experience_section(heading, exps)
-    return latex
-
-def build_resume():
-    latex = "\\documentclass{rb-resume}\n"
-    latex += r'''
-    \setname{%(name)s}
-    \setemail{%(email)s}
-    \setphone{%(phone)s}
-    \setlocation{%(location)s}
-    ''' % {
-        "name": root.findtext("contact/name"),
-        "email": root.findtext("contact/email"),
-        "phone": root.findtext("contact/phone"),
-        "location": root.findtext("contact/location"),
-    }
-    latex += "\n\\begin{document}\n\n"
-    latex += experience_sections()
-    latex += "\\end{document}\n"
-    return latex
+        latex += "\\end{itemize}\n"
+        return latex
 
 tree = ET.parse("resume.xml")
 root = tree.getroot()
+resume = Resume(root)
 
 with open("resume.tex", "w") as f:
-    f.write(build_resume())
+    f.write(resume.to_latex())
