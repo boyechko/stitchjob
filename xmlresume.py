@@ -1,51 +1,59 @@
 import xml.etree.ElementTree as ET
-from jinja2 import Environment, FileSystemLoader
+
+def format_experience_section(heading, experiences):
+    latex = r"\section*{%(heading)s}" % {'heading': heading}
+    latex += "\n"
+    for exp in experiences:
+        datedsubsection = r"\datedsubsection{%(title)s}{%(begin)s -- %(end)s}"
+        latex += datedsubsection % {'title': exp['title'],
+                                    'begin': exp['begin'],
+                                    'end': exp['end']}
+        organization = r"\organization{%(organization)s}{%(location)s}"
+        latex += "\n" + organization % {'organization': exp['organization'],
+                                        'location': exp['location']}
+        if exp.get("blurb"):
+            latex += f"\n\\organizationblurb{{{exp['blurb']}}}\n"
+        latex += "\n\\begin{itemize}\n"
+        for item in exp['items']:
+            latex += f"  \\item {item}\n"
+        latex += "\\end{itemize}\n\n"
+    return latex
 
 tree = ET.parse("resume.xml")
 root = tree.getroot()
 
-contact = {
+latex = "\\documentclass{rb-resume}\n"
+latex += r'''
+\setname{%(name)s}
+\setemail{%(email)s}
+\setphone{%(phone)s}
+\setlocation{%(location)s}
+''' % {
     "name": root.findtext("contact/name"),
     "email": root.findtext("contact/email"),
     "phone": root.findtext("contact/phone"),
     "location": root.findtext("contact/location"),
 }
+latex += "\n\\begin{document}\n\n"
 
-jobs_heading = root.findtext(".//experiences[@type='professional']/heading")
-jobs = []
-for exp in root.findall(".//experiences[@type='professional']/experience"):
-    job = {
-        "title": exp.findtext("title"),
-        "organization": exp.findtext("organization"),
-        "location": exp.findtext("location"),
-        "blurb": exp.findtext("blurb"),
-        "begin": exp.findtext("dates/begin"),
-        "end": exp.findtext("dates/end"),
-        "bullets": [item.text.strip() for item in exp.findall(".//item")],
-    }
-    jobs.append(job)
+exp_containers = root.findall("experiences")
+for container in exp_containers:
+    heading = container.findtext("heading")
+    exps = []
+    for exp_sec in container.findall("experience"):
+        exp = {
+            "title": exp_sec.findtext("title"),
+            "organization": exp_sec.findtext("organization"),
+            "location": exp_sec.findtext("location"),
+            "blurb": exp_sec.findtext("blurb").strip(),
+            "begin": exp_sec.findtext("dates/begin"),
+            "end": exp_sec.findtext("dates/end"),
+            "items": [item.text.strip() for item in exp_sec.findall(".//item")],
+        }
+        exps.append(exp)
+    latex += format_experience_section(heading, exps)
 
-env = Environment(
-    loader=FileSystemLoader('.'),
-    block_start_string='\\BLOCK{',
-    block_end_string='}',
-    variable_start_string='\\VAR{',
-    variable_end_string='}',
-    comment_start_string='\\#{',
-    comment_end_string='}',
-    trim_blocks=True,
-    autoescape=False
-)
-template = env.get_template('template.tex')
-
-latex = template.render(
-    name=contact["name"],
-    email=contact["email"],
-    phone=contact["phone"],
-    location=contact["location"],
-    jobs_heading=jobs_heading,
-    jobs=jobs
-)
+latex += "\\end{document}\n"
 
 with open("resume.tex", "w") as f:
     f.write(latex)
