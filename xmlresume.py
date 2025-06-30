@@ -31,8 +31,8 @@ def experience_sections():
                 "organization": exp_sec.findtext("organization"),
                 "location": exp_sec.findtext("location"),
                 "blurb": exp_sec.findtext("blurb").strip(),
-                "begin": exp_sec.findtext("dates/begin"),
-                "end": exp_sec.findtext("dates/end"),
+                "begin": exp_sec.attrib.get("begin", "???"),
+                "end": exp_sec.attrib.get("end", "???"),
                 "items": [item.text.strip() for item in exp_sec.findall(".//item")],
             }
             exps.append(exp)
