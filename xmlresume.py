@@ -32,6 +32,7 @@ class Resume:
         self.email = XmlHelper.findtext(element, "contact/email")
         self.location = XmlHelper.findtext(element, "contact/location")
         self.experience_sections = [ExperienceSection(exps_el) for exps_el in element.findall("experiences")]
+        self.education_section = EducationSection(element.findall("education")[0])
 
     def to_latex(self):
         latex = "\\documentclass{rb-resume}\n"
@@ -42,6 +43,7 @@ class Resume:
         latex += "\n\\begin{document}\n\n"
         for exp_sec in self.experience_sections:
             latex += exp_sec.to_latex()
+        latex += self.education_section.to_latex()
         latex += "\\end{document}\n"
         return latex
 
@@ -84,6 +86,34 @@ class Experience:
             latex += f"  \\item {escape_latex(item)}\n"
         latex += "\\end{itemize}\n"
         return latex
+
+class EducationSection:
+    def __init__(self, element):
+        self.heading = XmlHelper.findtext(element, "heading", "Education")
+        self.degrees = [Degree(deg_el) for deg_el in element.findall("degree")]
+
+    def to_latex(self):
+        latex = f"\\section*{{{escape_latex(self.heading)}}}\n"
+        for deg in self.degrees:
+            latex += deg.to_latex()
+        return latex
+
+class Degree:
+    def __init__(self, element):
+        self.date = XmlHelper.findtext(element, "date")
+        self.type = XmlHelper.findtext(element, "type")
+        self.field = XmlHelper.findtext(element, "field")
+        self.school = XmlHelper.findtext(element, "school")
+        self.location = XmlHelper.findtext(element, "location")
+    
+    def to_latex(self):
+        date = escape_latex(self.date)
+        type = escape_latex(self.type)
+        field = escape_latex(self.field)
+        school = escape_latex(self.school)
+        location = escape_latex(self.location)
+
+        return f"\\degree{{{type}}}{{{field}}}{{{school}}}{{{location}}}{{{date}}}\n"
 
 tree = ET.parse("resume.xml")
 root = tree.getroot()
