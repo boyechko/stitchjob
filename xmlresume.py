@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+import re
 
 LATEX_ESCAPE = {
     "&": "\\&", "%": "\\%", "$": "\\$", "#": "\\#",
@@ -9,12 +10,27 @@ LATEX_ESCAPE = {
 def escape_latex(text):
     return "".join(LATEX_ESCAPE.get(c, c) for c in text)
 
+class XmlHelper:
+    @staticmethod
+    def text(element, default=""):
+        text = element.text
+        if text:
+            return re.sub(r"\s+", " ", text).strip()
+        return default
+
+    @staticmethod
+    def findtext(element, path, default=""):
+        text = element.findtext(path)
+        if text:
+            return re.sub(r"\s+", " ", text).strip()
+        return default 
+
 class Resume:
     def __init__(self, element):
-        self.name = element.findtext("contact/name")
-        self.phone = element.findtext("contact/phone")
-        self.email = element.findtext("contact/email")
-        self.location = element.findtext("contact/location")
+        self.name = XmlHelper.findtext(element, "contact/name")
+        self.phone = XmlHelper.findtext(element, "contact/phone")
+        self.email = XmlHelper.findtext(element, "contact/email")
+        self.location = XmlHelper.findtext(element, "contact/location")
         self.experience_sections = [ExperienceSection(exps_el) for exps_el in element.findall("experiences")]
 
     def to_latex(self):
@@ -31,7 +47,7 @@ class Resume:
 
 class ExperienceSection:
     def __init__(self, element):
-        self.heading = element.findtext("heading")
+        self.heading = XmlHelper.findtext(element, "heading")
         self.experiences = [Experience(exp_el) for exp_el in element.findall("experience")]
 
     def to_latex(self):
@@ -42,13 +58,13 @@ class ExperienceSection:
 
 class Experience:
     def __init__(self, element):
-        self.title = element.findtext("title")
-        self.organization = element.findtext("organization")
-        self.location = element.findtext("location")
-        self.blurb = element.findtext("blurb").strip()
+        self.title = XmlHelper.findtext(element, "title")
+        self.organization = XmlHelper.findtext(element, "organization")
+        self.location = XmlHelper.findtext(element, "location")
+        self.blurb = XmlHelper.findtext(element, "blurb")
         self.begin = element.attrib.get("begin", "???")
         self.end = element.attrib.get("end", "???")
-        self.items = [item.text.strip() for item in element.findall("items/item")]
+        self.items = [XmlHelper.text(item) for item in element.findall("items/item")]
 
     def to_latex(self):
         latex = r"""
