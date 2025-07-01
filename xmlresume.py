@@ -50,7 +50,8 @@ class Resume:
 
 class ExperienceSection:
     def __init__(self, element):
-        self.heading = XmlHelper.findtext(element, "heading")
+        self.type = element.attrib.get("type")
+        self.heading = element.attrib.get("heading", self.type.capitalize() + " Experience")
         self.experiences = [Experience(exp_el) for exp_el in element.findall("experience")]
 
     def to_latex(self):
@@ -89,7 +90,7 @@ class Experience:
 
 class EducationSection:
     def __init__(self, element):
-        self.heading = XmlHelper.findtext(element, "heading", "Education")
+        self.heading = element.attrib.get("heading", "Education")
         self.degrees = [Degree(deg_el) for deg_el in element.findall("degree")]
 
     def to_latex(self):
