@@ -10,10 +10,12 @@
 \RequirePackage[hidelinks]{hyperref} % Hide link borders
 \RequirePackage{graphicx}
 
+\pagestyle{empty}
+
 \RequirePackage{geometry}
-\newcommand\margin{0.5in}
+\newcommand\margin{0.75in}
 \geometry{letterpaper,
-          bindingoffset=0.2in,
+          bindingoffset=0pt,
           left=\margin,
           right=\margin,
           top=\margin,
