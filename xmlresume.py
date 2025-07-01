@@ -4,7 +4,8 @@ import re
 LATEX_ESCAPE = {
     "&": "\\&", "%": "\\%", "$": "\\$", "#": "\\#",
     "_": "\\_", "{": "\\{", "}": "\\}", "~": "\\textasciitilde{}",
-    "^": "\\textasciicircum{}", "\\": "\\textbackslash{}"
+    "^": "\\textasciicircum{}", "\\": "\\textbackslash{}",
+    "←": "$\\leftarrow$", "→": "$\\rightarrow$", "↔": "$\\leftrightarrow$"
 }
 
 def escape_latex(text):
