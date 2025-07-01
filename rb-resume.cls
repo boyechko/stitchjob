@@ -26,10 +26,6 @@
 \setlength{\medskipamount}{12pt plus 2pt minus 2pt}
 \setlength{\bigskipamount}{24pt plus 8pt minus 8pt}
 
-\RequirePackage{paracol}
-\columnratio{0.65, 0.35}
-\setlength\columnsep{0.05\textwidth}
-
 \RequirePackage{enumitem}
 \setlist[itemize]{noitemsep,leftmargin=5mm}
 
@@ -52,19 +48,28 @@
 \titleformat*{\paragraph}{\normalsize}
 \titleformat*{\subparagraph}{\normalsize}
 
-\RequirePackage{xparse}
-\RequirePackage{etoolbox}
-
 \newcommand{\heading}[1]{{\Huge\color{black}\textbf{#1}}}
 \newcommand{\datedsubsection}[2]{\subsection*{#1 \hfill \textmd{\textcolor{customblue}{#2}}}}
 \newcommand{\degree}[5]{\subsection*{#1 \textmd{(#2), #3, #4 \hfill \textcolor{customblue}{#5}}}}
 
+\RequirePackage{xparse}
+\RequirePackage{etoolbox}
 \NewDocumentCommand{\organization}{ m o o }{%
    \textsl{#1%
      \IfValueT{#2}{\IfBlankTF{#2}{}{ (#2)}}%
      \IfValueT{#3}{\IfBlankTF{#3}{}{\\#3}}%
    }%
 }
+
+\RequirePackage{multicol}
+\newenvironment{skills}[1]{%
+  \begin{multicols}{2}[\section*{#1}]%
+    \begin{itemize}%
+}{%
+    \end{itemize}%
+  \end{multicols}%
+}
+
 % Define variables
 \newcommand{\name}{}
 \newcommand{\email}{}
