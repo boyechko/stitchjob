@@ -34,16 +34,24 @@ class Resume:
         self.phone = XmlHelper.findtext(element, "contact/phone")
         self.email = XmlHelper.findtext(element, "contact/email")
         self.location = XmlHelper.findtext(element, "contact/location")
+        self.linkedin = XmlHelper.findtext(element, "contact/linkedin")
+        self.github = XmlHelper.findtext(element, "contact/github")
         self.experience_sections = [ExperienceSection(exps_el) for exps_el in element.findall("experiences")]
         self.education_section = EducationSection(element.findall("education")[0])
         self.skill_section = SkillSection(element.findall("skills")[0])
 
     def to_latex(self):
         latex = "\\documentclass{rb-resume}\n"
-        latex += f"\\setname{{{self.name}}}\n"
-        latex += f"\\setemail{{{self.email}}}\n"
-        latex += f"\\setphone{{{self.phone}}}\n"
-        latex += f"\\setlocation{{{self.location}}}\n"
+        latex += f"""
+\\setprofile{{
+name={{{escape_latex(self.name)}}},
+email={{{escape_latex(self.email)}}},
+phone={{{escape_latex(self.phone)}}},
+location={{{escape_latex(self.location)}}},
+linkedin={{{escape_latex(self.linkedin)}}},
+github={{{escape_latex(self.github)}}}
+}}
+"""
         latex += "\n\\begin{document}\n\n"
         latex += self.skill_section.to_latex()
         for exp_sec in self.experience_sections:

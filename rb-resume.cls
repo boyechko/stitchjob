@@ -74,43 +74,52 @@
   \end{multicols}%
 }
 
-% Define variables
-\newcommand{\name}{}
-\newcommand{\email}{}
-\newcommand{\phone}{}
-\newcommand{\location}{}
-%\newcommand{\linkedin}{}
-%\newcommand{\github}{}
+\RequirePackage{keyval}
+\RequirePackage{etoolbox}       % for \ifstrempty
 
-% Setters
-\newcommand{\setname}[1]{\renewcommand{\name}{#1}}
-\newcommand{\setemail}[1]{\renewcommand{\email}{#1}}
-\newcommand{\setphone}[1]{\renewcommand{\phone}{#1}}
-\newcommand{\setlocation}[1]{\renewcommand{\location}{#1}}
-\newcommand{\setlinkedin}[1]{\renewcommand{\linkedin}{#1}}
-\newcommand{\setgithub}[1]{\renewcommand{\github}{#1}}
+% Declare keys and associated macros
+\define@key{profile}{name}{\def\profile@name{#1}}
+\define@key{profile}{email}{\def\profile@email{#1}}
+\define@key{profile}{phone}{\def\profile@phone{#1}}
+\define@key{profile}{location}{\def\profile@location{#1}}
+\define@key{profile}{linkedin}{\def\profile@linkedin{#1}}
+\define@key{profile}{github}{\def\profile@github{#1}}
 
+% Provide default (empty) values
+\def\profile@name{}
+\def\profile@email{}
+\def\profile@phone{}
+\def\profile@location{}
+\def\profile@linkedin{}
+\def\profile@github{}
+
+% Setter command
+\newcommand{\setprofile}[1]{\setkeys{profile}{#1}}
+
+% Display logic
 \newcommand{\spacer}{\enspace$\mid$\enspace}
+\newcommand{\printprofile}{%
+  \begin{center}
+    \heading{\profile@name}\\
+    \smallskip
+    \href{mailto:\profile@email}{\faEnvelope\enspace\profile@email}%
+    \spacer\faPhone\enspace\profile@phone%
+    \spacer\faLocationArrow\enspace\profile@location%
+    \ifstrempty{\profile@linkedin}{}{%
+      \spacer
+      \href{https://www.linkedin.com/in/\profile@linkedin}{\faLinkedinSquare\enspace\profile@linkedin}%
+    }%
+    \ifstrempty{\profile@github}{}{%
+      \spacer
+      \href{https://www.github.com/\profile@github}{\faGithub\enspace\profile@github}%
+    }%
+  \end{center}
+  \raggedright
+}
 
 \AtBeginDocument{%
-  \begin{center}%
-    \heading{\name}\\%
-    \smallskip%
-    {\href{mailto:\email}{\faEnvelope\enspace\email}}%
-    \spacer%
-    \faPhone\enspace\phone%
-    \spacer%
-    \faLocationArrow\enspace\location%
-    \ifdef{\linkedin}{%
-      \spacer%
-      \href{https://www.linkedin.common/in/\linkedin}{\faLinkedinSquare\enspace\linkedin}%
-    }{}%
-    \ifdef{\github}{%
-      \spacer%
-      \href{https://www.github.com/\github}{\faGithub\enspace\github}%
-    }{}%
-  \end{center}%
-  \raggedright%
+  \printprofile
+  \raggedright
 }
 
 \endinput
