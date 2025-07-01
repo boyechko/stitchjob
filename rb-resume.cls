@@ -40,6 +40,7 @@
 %\RequirePackage{tgheros}
 %\RequirePackage[sfdefault,light,medium]{josefin}
 %\renewcommand\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+\RequirePackage{fontawesome}
 
 \RequirePackage{titlesec}
 %\titleformat{\section}{\large\color{customblue}\bfseries}{}{0em}{}
@@ -89,16 +90,27 @@
 \newcommand{\setlinkedin}[1]{\renewcommand{\linkedin}{#1}}
 \newcommand{\setgithub}[1]{\renewcommand{\github}{#1}}
 
-\AtBeginDocument{
-  \begin{center}
-    \heading{\name}\\
-    \smallskip
-    {\href{mailto:\email}{\email}}\enspace$\mid$\enspace\phone\enspace$\mid$\enspace\location \\
-    \ifdef{\linkedin}{\href{https://\linkedin}{\linkedin}}{}
-    \ifdef{\github}{\enspace$\mid$\enspace\href{https://\github}{\github}}{}
-  \end{center}
+\newcommand{\spacer}{\enspace$\mid$\enspace}
 
-  \raggedright
+\AtBeginDocument{%
+  \begin{center}%
+    \heading{\name}\\%
+    \smallskip%
+    {\href{mailto:\email}{\faEnvelope\enspace\email}}%
+    \spacer%
+    \faPhone\enspace\phone%
+    \spacer%
+    \faLocationArrow\enspace\location%
+    \ifdef{\linkedin}{%
+      \spacer%
+      \href{https://www.linkedin.common/in/\linkedin}{\faLinkedinSquare\enspace\linkedin}%
+    }{}%
+    \ifdef{\github}{%
+      \spacer%
+      \href{https://www.github.com/\github}{\faGithub\enspace\github}%
+    }{}%
+  \end{center}%
+  \raggedright%
 }
 
 \endinput
