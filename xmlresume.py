@@ -71,16 +71,15 @@ class Experience:
     def to_latex(self):
         latex = r"""
         \datedsubsection{%(title)s}{%(begin)s -- %(end)s}
-        \organization{%(organization)s}{%(location)s}
+        \organization{%(organization)s}[%(location)s][%(blurb)s]
         """ % {
             'title': escape_latex(self.title),
             'begin': escape_latex(self.begin),
             'end': escape_latex(self.end),
             'organization': escape_latex(self.organization),
-            'location': escape_latex(self.location)
+            'location': escape_latex(self.location),
+            'blurb': escape_latex(self.blurb)
         }
-        if self.blurb:
-            latex += f"\\organizationblurb{{{escape_latex(self.blurb)}}}\n"
         latex += "\\begin{itemize}\n"
         for item in self.items:
             latex += f"  \\item {escape_latex(item)}\n"

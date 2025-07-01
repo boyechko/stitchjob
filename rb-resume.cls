@@ -6,68 +6,65 @@
 \LoadClass[12pt]{article}
 
 \RequirePackage[utf8]{inputenc}
-\RequirePackage{fontspec}
-\RequirePackage{lmodern}
-\RequirePackage{parskip}
-\RequirePackage{paracol}
-\RequirePackage{ragged2e}
-\RequirePackage{xcolor}
+\RequirePackage{ifthen}
 \RequirePackage[hidelinks]{hyperref} % Hide link borders
 \RequirePackage{graphicx}
-\RequirePackage{ifthen}
 
-% Geometry
-\newcommand\margin{0.5in}
 \RequirePackage{geometry}
+\newcommand\margin{0.5in}
 \geometry{letterpaper,
-    bindingoffset=0.2in,
-    left=\margin,
-    right=\margin,
-    top=\margin,
-    bottom=\margin,
-    footskip=0.25in}
-\columnratio{0.65, 0.35}
-\setlength\columnsep{0.05\textwidth}
-\setlength\parindent{0pt}
+          bindingoffset=0.2in,
+          left=\margin,
+          right=\margin,
+          top=\margin,
+          bottom=\margin,
+          footskip=0.25in}
+
+\RequirePackage{parskip}
+
 \setlength{\smallskipamount}{8pt plus 3pt minus 3pt}
 \setlength{\medskipamount}{12pt plus 2pt minus 2pt}
 \setlength{\bigskipamount}{24pt plus 8pt minus 8pt}
 
+\RequirePackage{paracol}
+\columnratio{0.65, 0.35}
+\setlength\columnsep{0.05\textwidth}
+
 \RequirePackage{enumitem}
 \setlist[itemize]{noitemsep,leftmargin=5mm}
 
-%===============================================================================
-% Style
-%===============================================================================
-
-% No page numbers
-\pagestyle{empty}
-
-% Colors
-
+\RequirePackage{xcolor}
 \definecolor{customblue}{HTML}{3E64FF}
 \definecolor{lightgray}{gray}{0.01}
 
-% Sections
+%\usepackage[sfdefault,light,medium]{josefin}
+\usepackage{tgheros}
+\usepackage[T1]{fontenc}
+\renewcommand\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 
 \RequirePackage{titlesec}
 %\titleformat{\section}{\large\color{customblue}\bfseries}{}{0em}{}
-\titleformat*{\section}{\large\sffamily\scshape}
+\titleformat*{\section}{\large\bfseries\color{customblue}\scshape}
 \titlespacing{\section}{0pt}{\smallskipamount}{\smallskipamount}
-\titleformat*{\subsection}{\large\sffamily}
-\titleformat*{\subsubsection}{\large\bfseries\sffamily}
-\titleformat*{\paragraph}{\large\bfseries\sffamily}
-\titleformat*{\subparagraph}{\large\bfseries\sffamily}
+
+\titleformat*{\subsection}{\normalsize\bfseries}
+\titleformat*{\subsubsection}{\normalize\scshape}
+\titleformat*{\paragraph}{\normalsize}
+\titleformat*{\subparagraph}{\normalsize}
+
+\RequirePackage{xparse}
+\RequirePackage{etoolbox}
 
 \newcommand{\heading}[1]{{\Huge\color{black}\textbf{#1}}}
-\newcommand{\experience}[2]{\subsection*{#1 \hfill \textcolor{customblue}{#2}}}
-%\newcommand{\consulting}[1]{\ifdef{\consultingFlag}{#1}{}}
-%\newcommand{\tech}[1]{\ifdef{\techFlag}{#1}{}}
-%\newcommand{\gpa}[1]{\ifdef{\gpaFlag}{#1}{}}
+\newcommand{\datedsubsection}[2]{\subsection*{#1 \hfill \textmd{\textcolor{customblue}{#2}}}}
+\newcommand{\degree}[5]{\subsection*{#1 \textmd{(#2), #3, #4 \hfill \textcolor{customblue}{#5}}}}
 
-%\RequirePackage{pifont}
-%\newenvironment{bullets}{\begin{dinglist}}{\end{dinglist}}
-
+\NewDocumentCommand{\organization}{ m o o }{%
+   \textsl{#1%
+     \IfValueT{#2}{\IfBlankTF{#2}{}{ (#2)}}%
+     \IfValueT{#3}{\IfBlankTF{#3}{}{\\#3}}%
+   }%
+}
 % Define variables
 \newcommand{\name}{}
 \newcommand{\email}{}
@@ -84,7 +81,6 @@
 \newcommand{\setlinkedin}[1]{\renewcommand{\linkedin}{#1}}
 \newcommand{\setgithub}[1]{\renewcommand{\github}{#1}}
 
-% Default header
 \AtBeginDocument{
   \begin{center}
     \heading{\name}\\
@@ -95,9 +91,6 @@
   \end{center}
 
   \raggedright
-  % For some raggedness, but still hyphenated sometimes:
-  %\RaggedRight
 }
 
 \endinput
-
