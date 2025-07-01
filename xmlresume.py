@@ -24,7 +24,7 @@ class XmlHelper:
         text = element.findtext(path)
         if text:
             return re.sub(r"\s+", " ", text).strip()
-        return default 
+        return default
 
 class Resume:
     def __init__(self, element):
@@ -108,7 +108,7 @@ class Degree:
         self.field = XmlHelper.findtext(element, "field")
         self.school = XmlHelper.findtext(element, "school")
         self.location = XmlHelper.findtext(element, "location")
-    
+
     def to_latex(self):
         date = escape_latex(self.date)
         type = escape_latex(self.type)
@@ -133,7 +133,7 @@ class SkillSection:
 class Skill:
     def __init__(self, element):
         self.name = element.text
-    
+
     def to_latex(self):
         return escape_latex(self.name)
 
