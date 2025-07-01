@@ -4,7 +4,7 @@ LATEX = pdflatex
 all: resume.tex output/resume.pdf
 
 resume.tex: resume.xml xmlresume.py rb-resume.cls
-	$(PYTHON) xmlresume.py
+	$(PYTHON) xmlresume.py resume.xml -o resume.tex
 
 output/resume.pdf: resume.tex
 	mkdir -p output

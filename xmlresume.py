@@ -1,3 +1,5 @@
+import sys
+import argparse
 import xml.etree.ElementTree as ET
 import re
 
@@ -137,9 +139,21 @@ class Skill:
     def to_latex(self):
         return escape_latex(self.name)
 
-tree = ET.parse("resume.xml")
-root = tree.getroot()
-resume = Resume(root)
+def main():
+    parser = argparse.ArgumentParser(description="Generate LaTeX resume from XML")
+    parser.add_argument("input", nargs="?", default="resume.xml", help="Input XML file (default: resume.xml)")
+    parser.add_argument("-o", "--output",
+                        type=argparse.FileType("w"), 
+                        default=sys.stdout,
+                        help="Output LaTeX file (default: stdout)")
+    args = parser.parse_args()
 
-with open("resume.tex", "w") as f:
-    f.write(resume.to_latex())
+    tree = ET.parse(args.input)
+    root = tree.getroot()
+    resume = Resume(root)
+    latex = resume.to_latex()
+
+    print(latex, file=args.output)
+
+if __name__ == "__main__":
+    main()
