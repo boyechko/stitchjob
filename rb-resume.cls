@@ -35,10 +35,11 @@
 \definecolor{customblue}{HTML}{3E64FF}
 \definecolor{lightgray}{gray}{0.01}
 
-%\usepackage[sfdefault,light,medium]{josefin}
-\usepackage{tgheros}
-\usepackage[T1]{fontenc}
-\renewcommand\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+\RequirePackage[T1]{fontenc}
+\RequirePackage{lmodern}
+%\RequirePackage{tgheros}
+%\RequirePackage[sfdefault,light,medium]{josefin}
+%\renewcommand\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 
 \RequirePackage{titlesec}
 %\titleformat{\section}{\large\color{customblue}\bfseries}{}{0em}{}
