@@ -14,22 +14,6 @@ Built for writers, developers, and anyone tired of one-size-fits-all job applica
 - Output polished PDFs tailored to each role
 - Emphasizes modularity, reuse, and customization
 
-## Directory Structure
-
-```
-xml-resume/
-├── resume.xml # Main resume content (semantic XML)
-├── patchworker.py # Python script to convert XML to LaTeX
-├── patchworker.cls # LaTeX resume class
-├── Makefile # Build script for PDF generation
-├── output/ # Contains LaTeX and PDF files
-│ ├── resume.tex # Compiled from resume.xml
-│ └── resume.pdf # Compiled from resume.tex
-├── tests/
-│ └── sample.xml # Sample resume data for testing
-└── README.md # This file
-```
-
 ## General Process
 
 1. Create a master resume using simple XML (see `tests/sample.xml`) that
@@ -50,3 +34,22 @@ xml-resume/
 4. Review the resulting PDF, and make necessary adjustments, and recompile (step
    #3) as needed. Since both the Python script and the LaTeX class are
    lightweight, the compilation is nigh seamless.
+
+## Directory Structure
+
+```
+xml-resume/
+├── resume.xml          # Main resume content (semantic XML)
+├── patchworker.py      # Python script to convert XML to LaTeX
+├── patchworker.cls     # LaTeX resume class
+├── Makefile            # Build script for PDF generation
+├── output/             # Contains LaTeX and PDF files
+│ ├── resume.tex        # Compiled from resume.xml
+│ └── resume.pdf        # Compiled from resume.tex
+├── tests/
+│ └── sample.xml        # Sample resume data for testing
+├── CHANGELOG.md        # Log of major changes
+├── LICENSE             # Text of the MIT License
+└── README.md           # This file
+```
+
