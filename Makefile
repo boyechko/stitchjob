@@ -1,12 +1,12 @@
 PYTHON = python3
 LATEX = pdflatex
 
-all: resume.tex output/resume.pdf
+all: output/resume.tex output/resume.pdf
 
-resume.tex: resume.xml xmlresume.py rb-resume.cls
-	$(PYTHON) xmlresume.py resume.xml -o resume.tex
+output/resume.tex: resume.xml patchworker.py patchworker.cls
+	$(PYTHON) patchworker.py resume.xml -o output/resume.tex
 
-output/resume.pdf: resume.tex
+output/resume.pdf: output/resume.tex
 	mkdir -p output
 	$(LATEX) -output-directory=output resume.tex
 

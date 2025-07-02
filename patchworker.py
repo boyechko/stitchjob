@@ -41,7 +41,7 @@ class Resume:
         self.skill_section = SkillSection(element.findall("skills")[0])
 
     def to_latex(self):
-        latex = "\\documentclass{rb-resume}\n"
+        latex = "\\documentclass{patchworker}\n"
         latex += f"""
 \\setprofile{{
 name={{{escape_latex(self.name)}}},

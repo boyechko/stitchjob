@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{rb-resume}[2025/06/29 RB's Custom Resume Class]
+\ProvidesClass{patchworker}[2025/06/29 Patchworker Resume Class]
 
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessOptions\relax
