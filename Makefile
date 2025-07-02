@@ -1,14 +1,18 @@
 PYTHON = python3
 LATEX = pdflatex
+SCRIPT = patchworker.py
+CLS = patchworker.cls
 
 all: output/resume.tex output/resume.pdf
 
-output/resume.tex: resume.xml patchworker.py patchworker.cls
-	$(PYTHON) patchworker.py resume.xml -o output/resume.tex
-
-output/resume.pdf: output/resume.tex
+output/%.tex: %.xml $(SCRIPT) $(CLS)
+	echo "Building $@ from $<"
 	mkdir -p output
-	$(LATEX) -output-directory=output resume.tex
+	$(PYTHON) $(SCRIPT) $< -o $@
+
+output/%.pdf: output/%.tex %.xml
+	echo "Building $@ from $<"
+	$(LATEX) -output-directory=output $<
 
 clean:
-	rm -f resume.tex output/*
+	rm -f output/*
