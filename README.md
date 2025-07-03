@@ -1,7 +1,7 @@
-# Patchworker
+# Stitchjob
 
-**Patchworker** is a plaintext-first toolchain for assembling custom-fit resumes
-from modular parts. Rather than rewriting or cloning past resumes, Patchworker
+**Stitchjob** is a plaintext-first toolchain for assembling custom-fit resumes
+from modular parts. Rather than rewriting or cloning past resumes, Stitchjob
 encourages thoughtful tailoring by letting you trim, stitch, and combine
 prewritten bullet points into job-specific documents.
 
@@ -30,7 +30,7 @@ Built for writers, developers, and anyone tired of one-size-fits-all job applica
     `resume/myresume.tex` and `resume/myresume.pdf`, depending on what format
     you want.
 
-    Without make, you would run `python3 patchworker.py resume/<yourfile>.xml`,
+    Without make, you would run `python3 stitch_resume.py resume/<yourfile>.xml`,
     which compiles the XML into a LaTeX file with the same name
     (`<yourfile>.tex` in this example) and in the same directory. Then run
     `pdflatex resume/<yourfile>.tex` to produce the PDF.
@@ -42,16 +42,15 @@ Built for writers, developers, and anyone tired of one-size-fits-all job applica
 ## Directory Structure
 
 ```
-patchworker/
+stitchjob/
 ├── CHANGELOG.md        # Log of major changes
 ├── LICENSE             # Text of the MIT License
 ├── Makefile            # Build script for PDF generation
-├── patchworker.py      # Python script to convert XML to LaTeX
-├── patchworker.cls     # LaTeX resume class
-├── resume/             # Resume .XML, .TEX, and .PDF files
-│ ├── example.xml       # Example resume
-│ ├── example.tex       # Generated from example.xml
-│ └── example.pdf       # Compiled from example.tex
-└── README.md           # This file
+├── stitch_resume.py    # Python script to convert XML to LaTeX
+├── README.md           # This file
+└── resume/             # Resume .XML, .TEX, and .PDF files
+  ├── example.xml       # Example resume
+  ├── example.tex       # Generated from example.xml
+  ├── example.pdf       # Compiled from example.tex
+  └── stitched.cls      # LaTeX resume class for Stitchjob resumes
 ```
-

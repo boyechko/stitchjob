@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Rename the project to Stitchjob, playing on having a "tailored" job materials.
 - All resume inputs and outputs now reside in `resume/`.
 - Add `resume/example.xml` along with its LaTeX and PDF outputs.
 - Parser reads all children of <resume>...</resume> element in order, allowing

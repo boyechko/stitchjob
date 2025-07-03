@@ -1,7 +1,7 @@
 PYTHON = python3
 LATEX = pdflatex
-SCRIPT = patchworker.py
-CLS = resume/patchworker.cls
+SCRIPT = stitch_resume.py
+CLS = resume/stitched.cls
 
 RESUME_DIR = resume
 RESUME_NAME = resume

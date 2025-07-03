@@ -1,4 +1,4 @@
 .DS_Store
 .vscode
 resume/*
-!resume/patchworker.cls
+!resume/stitched.cls

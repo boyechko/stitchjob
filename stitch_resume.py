@@ -40,7 +40,7 @@ class Resume:
         self.sections = [Section(sec_el) for sec_el in element.findall("section")]
 
     def to_latex(self):
-        latex = "\\documentclass{patchworker}\n"
+        latex = "\\documentclass{stitched}\n"
         latex += f"""
 \\setprofile{{
 name={{{escape_latex(self.name)}}},

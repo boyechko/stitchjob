@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{patchworker}[2025/06/29 Patchworker Resume Class]
+\ProvidesClass{stitched}[2025/06/29 Stitchjob Resume Class]
 
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessOptions\relax
