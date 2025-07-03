@@ -15,7 +15,7 @@ Built for writers, developers, and anyone tired of one-size-fits-all job applica
 
 ## General Process
 
-1. Create a master resume using simple XML (see `resume/sample.xml`) that
+1. Create a master resume using simple XML (see `resume/example.xml`) that
    captures your work experience in well-worded bullet points describing every
    significant aspect of what you did.
 
@@ -49,8 +49,9 @@ patchworker/
 ├── patchworker.py      # Python script to convert XML to LaTeX
 ├── patchworker.cls     # LaTeX resume class
 ├── resume/             # Resume .XML, .TEX, and .PDF files
-├── README.md           # This file
-├── resume.xml          # Main resume content (semantic XML)
-└── sample.xml          # Sample resume data for testing
+│ ├── example.xml       # Example resume
+│ ├── example.tex       # Generated from example.xml
+│ └── example.pdf       # Compiled from example.tex
+└── README.md           # This file
 ```
 

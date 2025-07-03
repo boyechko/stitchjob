@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - All resume inputs and outputs now reside in `resume/`.
+- Add `resume/example.xml` along with its LaTeX and PDF outputs.
 - Parser reads all children of <resume>...</resume> element in order, allowing
   order of the sections in the XML to carry into the output.
 - Introduce <section>...</section> element in place of specialized sections.

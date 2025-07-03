@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resume>
+  <contact>
+    <name>Riley K. Chen</name> <!-- (陳可欣) -->
+    <email>riley.chen@example.com</email>
+    <phone>415-555-2938</phone>
+    <location>San Francisco, CA</location>
+    <linkedin>rileykchen</linkedin>
+    <github>rkchen-dev</github>
+    <website>https://www.rileychen.dev</website>
+  </contact>
+
+  <section heading="Summary">
+    <description>Detail-oriented content and documentation specialist with a background in digital publishing, technical communication, and software documentation. Adept at managing complex workflows, editing multi-author content, and streamlining content delivery in collaborative environments.</description>
+  </section>
+
+  <section heading="Key Competencies">
+    <skills>
+      <skill>Technical Writing &amp; Editing</skill>
+      <skill>Content Lifecycle Management</skill>
+      <skill>Documentation Automation</skill>
+      <skill>Cross-Functional Collaboration</skill>
+      <skill>Agile &amp; Scrum Workflows</skill>
+      <skill>Markdown, LaTeX, XML</skill>
+      <skill>Git, GitHub, CI/CD</skill>
+      <skill>Tools: Confluence, Jira, Adobe FrameMaker</skill>
+    </skills>
+  </section>
+
+  <section type="professional" heading="Relevant Experience">
+
+    <experience begin="Feb. 2023" end="present">
+      <title>Technical Content Specialist</title>
+      <organization>ByteSpring Technologies</organization>
+      <location>San Francisco, CA</location>
+      <items>
+        <item>Created and maintained internal and external documentation for cloud-based software tools, reducing onboarding time by 30%.</item>
+        <item>Collaborated with product managers and engineers in an Agile environment to document release updates, API changes, and user guides.</item>
+        <item>Implemented structured authoring practices using Markdown and static site generators (MkDocs, Hugo).</item>
+      </items>
+    </experience>
+
+    <experience begin="Jul. 2020" end="Jan. 2023">
+      <title>Documentation Coordinator</title>
+      <organization>Westview Publishing Cooperative</organization>
+      <location>Remote</location>
+      <blurb>Independent publishing platform supporting academic and nonprofit publishing.</blurb>
+      <items>
+        <item>Managed editorial workflow for 20+ publications per year, including peer-reviewed journals and open-access monographs.</item>
+        <item>Standardized style and formatting using custom LaTeX templates and editorial macros in MS Word.</item>
+        <item>Coordinated freelance copyeditors and indexers to meet tight production deadlines.</item>
+      </items>
+    </experience>
+
+    <experience begin="Aug. 2018" end="Jun. 2020">
+      <title>Graduate Assistant</title>
+      <organization>UC Berkeley Library</organization>
+      <location>Berkeley, CA</location>
+      <items>
+        <item>Assisted in digitizing archival materials and encoding metadata for inclusion in library's digital collections.</item>
+        <item>Developed user documentation and instructional materials for new digital exhibits and collections platforms.</item>
+      </items>
+    </experience>
+
+  </section>
+
+  <section type="technical" heading="Technical Projects">
+
+    <experience begin="Jan. 2021" end="present">
+      <title>Developer &amp; Maintainer</title>
+      <organization>DocuWeaver</organization>
+      <location>https://github.com/rkchen-dev/docuweaver</location>
+      <blurb>Lightweight documentation generator for academic and nonprofit publishing workflows using Pandoc and Make.</blurb>
+      <items>
+        <item>Designed modular system for generating multi-format output (PDF, HTML, EPUB) from structured Markdown source.</item>
+        <item>Wrote reusable Makefile scripts and filters to support templating, bibliography integration, and code highlighting.</item>
+      </items>
+    </experience>
+
+  </section>
+
+  <section heading="Education">
+    <degree>
+      <date>2022</date>
+      <type>M.A.</type>
+      <field>Information Management &amp; Systems</field>
+      <school>UC Berkeley</school>
+      <location>Berkeley, CA</location>
+    </degree>
+
+    <degree>
+      <date>2017</date>
+      <type>B.A.</type>
+      <field>English Literature &amp; Media Studies</field>
+      <school>UC Santa Cruz</school>
+      <location>Santa Cruz, CA</location>
+    </degree>
+  </section>
+</resume>
