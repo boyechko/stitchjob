@@ -1,21 +1,23 @@
 PYTHON = python3
 LATEX = pdflatex
 SCRIPT = patchworker.py
-CLS = patchworker.cls
+CLS = resume/patchworker.cls
 
-.SECONDARY: output/%.tex
-.PRECIOUS: output/%.tex
+RESUME_DIR = resume
+RESUME_NAME = resume
 
-all: output/resume.tex output/resume.pdf
+.SECONDARY: $(RESUME_DIR)/%.tex
+.PRECIOUS: $(RESUME_DIR)/%.tex $(RESUME_DIR)/%.pdf
 
-output/%.tex: %.xml $(SCRIPT) $(CLS)
-	echo "Building $@ from $<"
-	mkdir -p output
+all: $(RESUME_DIR)/$(RESUME_NAME).tex $(RESUME_DIR)/$(RESUME_NAME).pdf
+
+$(RESUME_DIR)/%.tex: $(RESUME_DIR)/%.xml $(SCRIPT) $(CLS)
+	@echo "Building $@ from $<"
 	$(PYTHON) $(SCRIPT) $< -o $@
 
-output/%.pdf: output/%.tex %.xml
-	echo "Building $@ from $<"
-	$(LATEX) -output-directory=output $<
+$(RESUME_DIR)/%.pdf: $(RESUME_DIR)/%.tex $(RESUME_DIR)/%.xml
+	@echo "Building $@ from $<"
+	$(LATEX) -output-directory=$(RESUME_DIR) $<
 
 clean:
-	rm -f output/*
+	rm -f $(RESUME_DIR)/*.aux $(RESUME_DIR)/*.log $(RESUME_DIR)/*.out

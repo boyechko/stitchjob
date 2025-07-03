@@ -158,25 +158,31 @@ class Description:
 
 def main():
     parser = argparse.ArgumentParser(description="Generate LaTeX resume from XML")
-    parser.add_argument("input", nargs="?", default="resume.xml", help="Input XML file (default: resume.xml)")
-    parser.add_argument("-o", "--output", type=str, help="Output LaTeX file (default: output/<input>.tex)")
+    parser.add_argument("input", nargs="?",
+                        default="resume/resume.xml",
+                        help="Input XML file (default: resume/resume.xml)")
+    parser.add_argument("-o", "--output", type=str,
+                        help="Output LaTeX file (default: <input>.tex)")
     args = parser.parse_args()
     input_path = Path(args.input).resolve()
 
     # Compute default output path if not provided
     if args.output is None:
-        output_path = Path("output") / (input_path.stem + ".tex")
+        output_path = input_path.with_suffix(".tex")
     else:
         output_path = Path(args.output)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with output_path.open("w") as f:
-        tree = ET.parse(input_path)
-        root = tree.getroot()
-        resume = Resume(root)
-        latex = resume.to_latex()
-        print(latex, file=f)
+    try:
+        with output_path.open("w") as f:
+            tree = ET.parse(input_path)
+            root = tree.getroot()
+            resume = Resume(root)
+            latex = resume.to_latex()
+            print(latex, file=f)
+    except FileNotFoundError as err:
+        print(f"Error: File '{args.input}' not found.")
 
 if __name__ == "__main__":
     main()
