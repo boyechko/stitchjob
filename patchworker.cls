@@ -95,23 +95,23 @@
 
 % Setter command
 \newcommand{\setprofile}[1]{\setkeys{profile}{#1}}
+\newcommand{\iconify}[2]{\enspace\mbox{#1\enspace#2}}
+\newcommand{\linkedin}[1]{\href{https://www.linkedin.com/in/#1}{#1}}
+\newcommand{\github}[1]{\href{https://www.github.common/#1}{#1}}
 
-% Display logic
-\newcommand{\spacer}{\enspace$\mid$\enspace}
 \newcommand{\printprofile}{%
   \begin{center}
     \heading{\profile@name}\\
     \smallskip
-    \href{mailto:\profile@email}{\faEnvelope\enspace\profile@email}%
-    \spacer\faPhone\enspace\profile@phone%
-    \spacer\faLocationArrow\enspace\profile@location%
+    \iconify{\faEnvelope}{\href{mailto:\profile@email}{\profile@email}}%
+    \iconify{\faPhone}{\profile@phone}%
+    \iconify{\faLocationArrow}{\profile@location}%
+    \linebreak[0]%
     \ifstrempty{\profile@linkedin}{}{%
-      \spacer
-      \href{https://www.linkedin.com/in/\profile@linkedin}{\faLinkedinSquare\enspace\profile@linkedin}%
+      \iconify{\faLinkedinSquare}{\linkedin{\profile@linkedin}}%
     }%
     \ifstrempty{\profile@github}{}{%
-      \spacer
-      \href{https://www.github.com/\profile@github}{\faGithub\enspace\profile@github}%
+      \iconify{\faGithub}{\github{\profile@github}}%
     }%
   \end{center}
   \raggedright

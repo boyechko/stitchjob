@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Parser reads all children of <resume>...</resume> element in order, allowing
   order of the sections in the XML to carry into the output.
 - Introduce <section>...</section> element in place of specialized sections.
+- User profile information gets spread over two lines if too much for one.
 
 ### Added
 
