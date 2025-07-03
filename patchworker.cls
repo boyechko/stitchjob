@@ -48,13 +48,13 @@
 \titlespacing{\section}{0pt}{\smallskipamount}{\smallskipamount}
 
 \titleformat*{\subsection}{\normalsize\bfseries}
-\titleformat*{\subsubsection}{\normalize\scshape}
+\titleformat*{\subsubsection}{\normalsize\itshape}
 \titleformat*{\paragraph}{\normalsize}
 \titleformat*{\subparagraph}{\normalsize}
 
 \newcommand{\heading}[1]{{\Huge\color{black}\textbf{#1}}}
 \newcommand{\datedsubsection}[2]{\subsection*{#1 \hfill \textmd{\textcolor{customblue}{#2}}}}
-\newcommand{\degree}[5]{\subsection*{#1 \textmd{(#2), #3, #4 \hfill \textcolor{customblue}{#5}}}}
+\newcommand{\degree}[5]{\textbf{#1} \textmd{(#2), #3, #4 \hfill \textcolor{customblue}{#5}}\\}
 
 \RequirePackage{xparse}
 \RequirePackage{etoolbox}
@@ -66,8 +66,8 @@
 }
 
 \RequirePackage{multicol}
-\newenvironment{skills}[1]{%
-  \begin{multicols}{2}[\section*{#1}]%
+\newenvironment{skills}{%
+  \begin{multicols}{2}%
     \begin{itemize}%
 }{%
     \end{itemize}%
