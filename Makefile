@@ -3,6 +3,9 @@ LATEX = pdflatex
 SCRIPT = patchworker.py
 CLS = patchworker.cls
 
+.SECONDARY: output/%.tex
+.PRECIOUS: output/%.tex
+
 all: output/resume.tex output/resume.pdf
 
 output/%.tex: %.xml $(SCRIPT) $(CLS)
