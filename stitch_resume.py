@@ -31,26 +31,21 @@ class XmlHelper:
 
 class Resume:
     def __init__(self, element):
-        self.name = XmlHelper.findtext(element, "contact/name")
-        self.phone = XmlHelper.findtext(element, "contact/phone")
-        self.email = XmlHelper.findtext(element, "contact/email")
-        self.location = XmlHelper.findtext(element, "contact/location")
-        self.linkedin = XmlHelper.findtext(element, "contact/linkedin")
-        self.github = XmlHelper.findtext(element, "contact/github")
+        self.contact = {}
+        for item in element.findall("./contact")[0]:
+            self.contact[item.tag] = item.text
         self.sections = [Section(sec_el) for sec_el in element.findall("section")]
 
     def to_latex(self):
         latex = "\\documentclass{stitched}\n"
-        latex += f"""
-\\setprofile{{
-name={{{escape_latex(self.name)}}},
-email={{{escape_latex(self.email)}}},
-phone={{{escape_latex(self.phone)}}},
-location={{{escape_latex(self.location)}}},
-linkedin={{{escape_latex(self.linkedin)}}},
-github={{{escape_latex(self.github)}}}
-}}
-"""
+
+        keys = []
+        for key, val in self.contact.items():
+            keys.append(f"{key}={{{val}}}")
+        latex += "\\setprofile{\n"
+        latex += ",\n".join(keys)
+        latex += "\n}\n"
+
         latex += "\n\\begin{document}\n\n"
         for sec in self.sections:
             latex += sec.to_latex()
