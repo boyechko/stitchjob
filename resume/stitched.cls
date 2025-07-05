@@ -84,6 +84,7 @@
 \define@key{profile}{location}{\def\profile@location{#1}}
 \define@key{profile}{linkedin}{\def\profile@linkedin{#1}}
 \define@key{profile}{github}{\def\profile@github{#1}}
+\define@key{profile}{website}{\def\profile@website{#1}}
 
 % Provide default (empty) values
 \def\profile@name{}
@@ -92,12 +93,14 @@
 \def\profile@location{}
 \def\profile@linkedin{}
 \def\profile@github{}
+\def\profile@website{}
 
 % Setter command
 \newcommand{\setprofile}[1]{\setkeys{profile}{#1}}
 \newcommand{\iconify}[2]{\enspace\mbox{#1\enspace#2}}
 \newcommand{\linkedin}[1]{\href{https://www.linkedin.com/in/#1}{#1}}
 \newcommand{\github}[1]{\href{https://www.github.common/#1}{#1}}
+\newcommand{\website}[0]{\href{https://\profile@website}{\profile@website}}
 
 \newcommand{\printprofile}{%
   \begin{center}
@@ -105,6 +108,7 @@
     \smallskip
     \iconify{\faEnvelope}{\href{mailto:\profile@email}{\profile@email}}%
     \iconify{\faPhone}{\profile@phone}%
+    % alternative icons: \faHome, \faMap, \faMapO, \faMapPin, \faMapPin
     \iconify{\faLocationArrow}{\profile@location}%
     \linebreak[0]%
     \ifdefempty{\profile@linkedin}{}{%
@@ -112,6 +116,10 @@
     }%
     \ifdefempty{\profile@github}{}{%
       \iconify{\faGithub}{\github{\profile@github}}%
+    }%
+    % alternative icons: \faMousePointer, \faBookmarkO
+    \ifdefempty{\profile@website}{}{%
+      \iconify{\faBookmark}{\website}%
     }%
   \end{center}
   \raggedright
