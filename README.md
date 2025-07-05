@@ -13,7 +13,7 @@ Built for writers, developers, and anyone tired of one-size-fits-all job applica
 - LaTeX installation with `pdflatex`
 - Make (optional, for automated builds)
 
-## General Process
+## Description of Use
 
 1. Create a master resume using simple XML (see `resume/example.xml`) that
    captures your work experience in well-worded bullet points describing every
@@ -38,6 +38,18 @@ Built for writers, developers, and anyone tired of one-size-fits-all job applica
 4. Review the resulting PDF, and make necessary adjustments, and recompile (step
    #3) as needed. Since both the Python script and the LaTeX class are
    lightweight, the compilation should be very quick.
+
+## Resume XML Format
+
+Stitchjob resumes are authored in a lightweight XML format that balances structure with flexibility. The XML file must begin with a `<resume>` root element and typically includes the following:
+
+- `<contact>`: Your name, email, phone, location, and optional links (e.g., GitHub, LinkedIn).
+- `<section>`: Major sections of the resume (e.g., Summary, Key Competencies, Experience, Education). Use the `heading` attribute to specify a title; optionally, add a `type` for semantic grouping.
+- `<skills>`: Inside a section, lists individual `<skill>` elements.
+- `<experience>`: Work or project entries, with attributes `begin` and `end`. Child elements include `<title>`, `<organization>`, `<location>`, optional `<blurb>`, and a list of `<item>` bullet points or freeform text `<description>`.
+- `<degree>`: For education, including `<date>`, `<type>`, `<field>`, `<school>`, and `<location>`.
+
+The format is intentionally minimal and easy to edit. See [`resume/example.xml`](resume/example.xml) for a complete, working example. Or just jump in by copying [`resume/template.xml`](resume/template.xml) and filling in your details.
 
 ## Directory Structure
 
