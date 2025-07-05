@@ -107,10 +107,10 @@
     \iconify{\faPhone}{\profile@phone}%
     \iconify{\faLocationArrow}{\profile@location}%
     \linebreak[0]%
-    \ifstrempty{\profile@linkedin}{}{%
+    \ifdefempty{\profile@linkedin}{}{%
       \iconify{\faLinkedinSquare}{\linkedin{\profile@linkedin}}%
     }%
-    \ifstrempty{\profile@github}{}{%
+    \ifdefempty{\profile@github}{}{%
       \iconify{\faGithub}{\github{\profile@github}}%
     }%
   \end{center}
