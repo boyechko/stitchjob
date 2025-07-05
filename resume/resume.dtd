@@ -1,0 +1,49 @@
+<!ELEMENT resume (contact, section*)>
+<!-- 
+    Contact details must contain name, email, phone, and location,
+    but the other elements are optional.
+-->
+<!ELEMENT contact (name, email, phone, location, linkedin?, github?, website?)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT email (#PCDATA)>
+<!ELEMENT phone (#PCDATA)>
+<!ELEMENT location (#PCDATA)>
+<!ELEMENT linkedin (#PCDATA)>
+<!ELEMENT github (#PCDATA)>
+<!ELEMENT website (#PCDATA)>
+<!--
+    Unless specified with an attribute, section's heading will just be "Section."
+-->
+<!ELEMENT section ANY>
+<!ATTLIST section heading CDATA "Section">
+<!ATTLIST section type CDATA #IMPLIED>
+<!--
+    Experience element must specify title (i.e. what you did), organization
+    (i.e. the entity where you did it), and location (i.e. where the entity
+    is/was located. Optionally, you can include a blurb about the entity.
+    The rest of the element consists of either bulleted items or textual
+    description about what you did during that experience.
+-->
+<!ELEMENT experience (title, organization, location, blurb?, (items|description))>
+<!ATTLIST experience begin CDATA #REQUIRED>
+<!ATTLIST experience end CDATA #REQUIRED>
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT organization (#PCDATA)>
+<!ELEMENT blurb (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT items (item+)>
+<!ELEMENT item (#PCDATA)>
+<!--
+    Skills simply list one or more "skill" elements.
+-->
+<!ELEMENT skills (skill+)>
+<!ELEMENT skill (#PCDATA)>
+<!--
+    A degree must specify the date awarded, type (e.g. B.A., M.A., M.D., etc.),
+    school awarding the degree, and its location.
+-->
+<!ELEMENT degree (date, type, field, school, location)>
+<!ELEMENT date (#PCDATA)>
+<!ELEMENT type (#PCDATA)>
+<!ELEMENT field (#PCDATA)>
+<!ELEMENT school (#PCDATA)>

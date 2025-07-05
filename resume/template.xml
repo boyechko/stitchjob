@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE resume SYSTEM "resume.dtd">
+<resume>
+
+  <contact>
+    <name>Your Name</name>
+    <email>your.email@example.com</email>
+    <phone>555-555-5555</phone>
+    <location>Your City, State</location>
+    <linkedin>your-linkedin-handle</linkedin>
+    <github>your-github-username</github>
+    <website>https://yourwebsite.com</website>
+  </contact>
+
+  <section heading="Summary">
+    <description>Your one-paragraph professional summary goes here.</description>
+  </section>
+
+  <section heading="Key Competencies">
+    <skills>
+      <skill>Skill One</skill>
+      <skill>Skill Two</skill>
+      <skill>Skill Three</skill>
+    </skills>
+  </section>
+
+  <section type="professional" heading="Professional Experience">
+    <experience begin="Start Date" end="End Date">
+      <title>Your Job Title</title>
+      <organization>Company or Organization Name</organization>
+      <location>City, State or Remote</location>
+      <blurb>Optional one-line description of the organization.</blurb>
+      <items>
+        <item>What you did or achieved in this role.</item>
+        <item>Another bullet point.</item>
+      </items>
+    </experience>
+  </section>
+
+  <section type="volunteer" heading="Volunteer Experience">
+    <experience begin="Start Date" end="End Date">
+      <title>Volunteer Role</title>
+      <organization>Organization Name</organization>
+      <location>City, State or Remote</location>
+      <blurb>Optional description of the organization or program.</blurb>
+      <items>
+        <item>Describe what you did or contributed.</item>
+        <item>Highlight any impact, initiative, or skills used.</item>
+      </items>
+    </experience>
+  </section>
+
+  <section type="technical" heading="Technical Projects">
+    <experience begin="Start Date" end="End Date">
+      <title>Your Role</title>
+      <organization>Project or Repository Name</organization>
+      <location>https://link-to-project.com</location>
+      <blurb>Brief description of the project and its purpose.</blurb>
+      <items>
+        <item>What you built or maintained.</item>
+      </items>
+    </experience>
+  </section>
+
+  <section heading="Education">
+    <degree>
+      <date>Graduation Year</date>
+      <type>Degree Type (e.g., B.A., M.Sc.)</type>
+      <field>Field of Study</field>
+      <school>School Name</school>
+      <location>School Location</location>
+    </degree>
+  </section>
+
+</resume>
