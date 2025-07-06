@@ -29,29 +29,6 @@ class XmlHelper:
             return re.sub(r"\s+", " ", text).strip()
         return default
 
-class Resume:
-    def __init__(self, element):
-        self.contact = {}
-        for item in element.findall("./contact")[0]:
-            self.contact[item.tag] = item.text
-        self.sections = [Section(sec_el) for sec_el in element.findall("section")]
-
-    def to_latex(self):
-        latex = "\\documentclass{stitched}\n"
-
-        keys = []
-        for key, val in self.contact.items():
-            keys.append(f"{key}={{{val}}}")
-        latex += "\\setprofile{\n"
-        latex += ",\n".join(keys)
-        latex += "\n}\n"
-
-        latex += "\n\\begin{document}\n\n"
-        for sec in self.sections:
-            latex += sec.to_latex()
-        latex += "\\end{document}\n"
-        return latex
-
 class Section:
     def __str__(self):
         return f"Section({self.type=}, {self.heading=}, {self.children.count()})"
@@ -151,6 +128,38 @@ class Description:
     def to_latex(self):
         return escape_latex(self.text)
 
+class Resume:
+    """Object representing a resume."""
+
+    def __init__(self, source):
+        """Initializes the Resume from source XML file.
+        
+        Args:
+            source (str or file-like): A path to the XML file or an open file-like object.
+        """
+        self.contact = {}
+
+        root = ET.parse(source).getroot()
+        for item in root.findall("./contact")[0]:
+            self.contact[item.tag] = item.text
+        self.sections = [Section(sec_el) for sec_el in root.findall("section")]
+
+    def to_latex(self):
+        latex = "\\documentclass{stitched}\n"
+
+        keys = []
+        for key, val in self.contact.items():
+            keys.append(f"{key}={{{val}}}")
+        latex += "\\setprofile{\n"
+        latex += ",\n".join(keys)
+        latex += "\n}\n"
+
+        latex += "\n\\begin{document}\n\n"
+        for sec in self.sections:
+            latex += sec.to_latex()
+        latex += "\\end{document}\n"
+        return latex
+
 def main():
     parser = argparse.ArgumentParser(description="Generate LaTeX resume from XML")
     parser.add_argument("input", nargs="?",
@@ -170,14 +179,13 @@ def main():
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        with output_path.open("w") as f:
-            tree = ET.parse(input_path)
-            root = tree.getroot()
-            resume = Resume(root)
-            latex = resume.to_latex()
-            print(latex, file=f)
+        resume = Resume(input_path)
     except FileNotFoundError as err:
         print(f"Error: File '{args.input}' not found.")
+
+    with output_path.open("w") as f:
+        latex = resume.to_latex()
+        print(latex, file=f)
 
 if __name__ == "__main__":
     main()
