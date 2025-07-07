@@ -2,3 +2,4 @@
 .vscode
 resume/*
 !resume/stitched.cls
+letter/*
