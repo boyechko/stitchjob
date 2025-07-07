@@ -63,15 +63,23 @@ ${contact['phone']}\\\
 ${letter['body']}
 
 \begin{flushleft}
-Sincerely,\\\
-% if signature_image:
-  \vspace{3mm}
-  \includegraphics[width=5cm]{${signature_image}}\\\
-  \vspace{2mm}
+% if 'closing' in letter:
+  ${letter['closing']}\\\
 % else:
-  \vspace{2cm}
+  Sincerely,\\\
 % endif
-${contact['name']}
+% if signature_image:
+  \vspace{1ex}
+  \includegraphics[height=2em]{${signature_image}}\\\
+  \vspace{1ex}
+% else:
+  \vspace{1em}
+% endif
+% if 'signature' in letter:
+  ${letter['signature']}
+% else:
+  ${contact['name']}
+% endif
 \end{flushleft}
 
 \end{document}
