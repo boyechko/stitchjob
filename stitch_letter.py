@@ -26,12 +26,11 @@ def main():
     else:
         output_path = Path(args.output)
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
     try:
         resume = stitch_resume.Resume(resume_path)
     except FileNotFoundError as err:
-        print(f"Error: XML resume file '{args.resume}' not found.")
+        print(f"Error: XML resume file '{args.resume}' not found")
+        exit(1)
 
     contact = resume.contact
     letter = frontmatter.load(input_path)
@@ -45,10 +44,18 @@ def main():
         exit(1)
 
     template = Template(filename='letter/template.mako')
-    with open(output_path, 'w') as file:
-        file.write(template.render(contact=contact,
-                                   letter=letter,
-                                   signature_image=sig_path))
+
+    print(f"Stitching LaTeX file...", end='')
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as file:
+            file.write(template.render(contact=contact,
+                                    letter=letter,
+                                    signature_image=sig_path))
+        print("Done")
+    except:
+        print("Error: Could not stitch together '{output_path}'")
+        exit(1)
 
 if __name__ == "__main__":
     main()
