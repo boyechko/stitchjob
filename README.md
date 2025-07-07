@@ -51,6 +51,14 @@ Stitchjob resumes are authored in a lightweight XML format that balances structu
 
 The format is intentionally minimal and easy to edit. See [`resume/example.xml`](resume/example.xml) for a complete, working example. Or just jump in by copying [`resume/template.xml`](resume/template.xml) and filling in your details.
 
+*Note:* The content of the XML elements should be plain text that can be passed
+directly to LaTeX. Commonly used characters that have special meaning in LaTeX
+(i.e. `& % $ # _ ^ ~`) will be escaped, though. Backslashes (`\`) and squiggly
+brackets (`{}`) are passed unescaped, allowing for simply LaTeX markup (e.g.
+`\\` for newline, `\emph{}` for emphasis, `\textbf{}` for bold, etc.).
+Additionally, basic math symbols inside math mode are also handled properly, so
+that `$\leftarrow$` will be rendered as `←`.
+
 ## Directory Structure
 
 ```
