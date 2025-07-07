@@ -1,8 +1,30 @@
+import subprocess
+import sys
 import argparse
 from pathlib import Path
 from mako.template import Template
 import frontmatter
 import stitch_resume
+
+def compile_pdf(tex_path: Path):
+    """Compile the given LaTeX file into a PDF using pdflatex."""
+    tex_path = tex_path.resolve()
+
+    print("Compiling PDF file...", end='')
+    try:
+        result = subprocess.run(
+            ["pdflatex", "-interaction=nonstopmode", f"-output-directory={tex_path.parent}", tex_path.name],
+            check=True,
+            cwd=tex_path.parent,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        print("Done")
+    except subprocess.CalledProcessError as e:
+        print("Error: ")
+        print(e.stdout.decode(errors="replace"))
+        print(e.stderr.decode(errors="replace"))
+        sys.exit(1)
 
 def main():
     parser = argparse.ArgumentParser(description="Generate LaTeX cover letter from Markdown")
@@ -16,6 +38,8 @@ def main():
                         help="Image of the signature to use (default: letter/signature.png)")
     parser.add_argument("-o", "--output", type=str,
                         help="Output LaTeX file (default: <input>.tex)")
+    parser.add_argument("-p", "--pdf", action="store_true",
+                        help="Compile the .tex file to PDF using pdflatex")
     args = parser.parse_args()
     input_path = Path(args.input).resolve()
     resume_path = Path(args.resume)
@@ -56,6 +80,9 @@ def main():
     except:
         print("Error: Could not stitch together '{output_path}'")
         exit(1)
+
+    if args.pdf:
+        compile_pdf(output_path)
 
 if __name__ == "__main__":
     main()
