@@ -13,7 +13,6 @@ def main():
                         default="resume/resume.xml",
                         help="XML resume file with contact info (default: resume/resume.xml)")
     parser.add_argument("-s", "--signature", type=str,
-                        default="letter/signature.png",
                         help="Image of the signature to use (default: letter/signature.png)")
     parser.add_argument("-o", "--output", type=str,
                         help="Output LaTeX file (default: <input>.tex)")
@@ -36,13 +35,20 @@ def main():
 
     contact = resume.contact
     letter = frontmatter.load(input_path)
-    signature_image = args.signature if Path(args.signature).exists() else None
-    
+
+    if not args.signature:
+        sig_path = None
+    elif args.signature and Path(args.signature).exists():
+        sig_path = Path(args.signature).resolve()
+    else:
+        print(f"Error: Signature file '{args.signature}' not found")
+        exit(1)
+
     template = Template(filename='letter/template.mako')
     with open(output_path, 'w') as file:
         file.write(template.render(contact=contact,
                                    letter=letter,
-                                   signature_image=signature_image))
+                                   signature_image=sig_path))
 
 if __name__ == "__main__":
     main()
