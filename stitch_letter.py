@@ -57,7 +57,11 @@ def main():
         exit(1)
 
     contact = resume.contact
-    letter = frontmatter.load(input_path)
+
+    parsed = frontmatter.load(input_path)
+    letter = {}; letter['body'] = stitch_resume.escape_latex(parsed.content)
+    for key, val in parsed.metadata.items():
+        letter[key] = stitch_resume.escape_latex(val)
 
     if not args.signature:
         sig_path = None
@@ -74,8 +78,8 @@ def main():
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'w') as file:
             file.write(template.render(contact=contact,
-                                    letter=letter,
-                                    signature_image=sig_path))
+                                       letter=letter,
+                                       signature_image=sig_path))
         print("Done")
     except:
         print("Error: Could not stitch together '{output_path}'")

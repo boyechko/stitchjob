@@ -60,8 +60,7 @@ ${contact['phone']}\\\
   Dear Hiring Manager,%
 % endif
 
-${letter.content}
-
+${letter['body']}
 
 \begin{flushleft}
 Sincerely,\\\
