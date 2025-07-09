@@ -67,6 +67,10 @@ def main():
         sig_path = None
     elif args.signature and Path(args.signature).exists():
         sig_path = Path(args.signature).resolve()
+        try:
+            sig_path = sig_path.relative_to(input_path.parent)
+        except ValueError:
+            pass
     else:
         print(f"Error: Signature file '{args.signature}' not found")
         exit(1)
