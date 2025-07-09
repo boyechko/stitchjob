@@ -165,31 +165,56 @@ class Description:
     def to_latex(self):
         return escape_latex(self.text)
 
+class Contact:
+    """Contact information of the resume holder."""
+
+    def __init__(self, source):
+        """Initialize the Contact from the XML source.
+
+        Args:
+            source (str or ElementTree): A path to the XML file or its root node.
+        """
+        if not isinstance(source, ET.Element):
+            source = ET.parse(source).getroot()
+
+        self.values = {}
+        contact = source.findall("./contact")[0]
+        for item in contact:
+            self.values[item.tag] = item.text
+
+    def __getitem__(self, key):
+        return self.values[key]
+
+    def items(self):
+        return self.values.items()
+
+    def to_latex(self):
+        keys = []
+        latex = "\\setprofile{\n"
+        for key, val in self.values.items():
+            keys.append(f"{key}={{{val}}}")
+        latex += ",\n".join(keys)
+        latex += "\n}\n"
+        return latex
+
 class Resume:
     """Object representing a resume."""
 
-    def __init__(self, source):
+    def __init__(self, xml_file):
         """Initializes the Resume from source XML file.
-        
-        Args:
-            source (str or file-like): A path to the XML file or an open file-like object.
-        """
-        self.contact = {}
 
-        root = ET.parse(source).getroot()
-        for item in root.findall("./contact")[0]:
-            self.contact[item.tag] = item.text
+        Args:
+            xml_file (str or file-like): A path to the XML file or an open file-like object.
+        """
+
+        root = ET.parse(xml_file).getroot()
+        self.contact = Contact(root)
         self.sections = [Section(sec_el) for sec_el in root.findall("section")]
 
     def to_latex(self):
         latex = "\\documentclass{stitched}\n"
 
-        keys = []
-        for key, val in self.contact.items():
-            keys.append(f"{key}={{{val}}}")
-        latex += "\\setprofile{\n"
-        latex += ",\n".join(keys)
-        latex += "\n}\n"
+        latex += self.contact.to_latex()
 
         latex += "\n\\begin{document}\n\n"
         for sec in self.sections:
