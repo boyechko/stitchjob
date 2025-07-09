@@ -238,16 +238,27 @@ def main():
     else:
         output_path = Path(args.output)
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    print(f"Parsing resume XML file...", end='')
     try:
         resume = Resume(input_path)
-    except FileNotFoundError as err:
-        print(f"Error: File '{args.input}' not found.")
+        print("Done")
+    except FileNotFoundError:
+        print(f"\nError: File '{args.input}' not found.")
+        sys.exit(1)
+    except ET.ParseError as err:
+        print(f"\nError: Failed to parse '{input_path}': {err}")
+        sys.exit(1)
 
-    with output_path.open("w") as f:
-        latex = resume.to_latex()
-        print(latex, file=f)
+    print(f"Stitching LaTeX file...", end='')
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(resume.to_latex() + "\n", encoding="utf-8")
+        print("Done")
+    except PermissionError as err:
+        print(f"\nError: Cannot write to '{output_path}': {err}")
+    except Exception as err:
+        print(f"\nError: {err}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
