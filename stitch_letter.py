@@ -66,9 +66,9 @@ def main():
     print(f"Parsing Markdown input file...", end='')
     try:
         parsed = frontmatter.load(input_path)
-        letter = {}; letter['body'] = stitch_resume.escape_latex(parsed.content)
+        letter = {}; letter['body'] = stitch_resume.LaTeX.escape(parsed.content)
         for key, val in parsed.metadata.items():
-            letter[key] = stitch_resume.escape_latex(val)
+            letter[key] = stitch_resume.LaTeX.escape(val)
         print("Done")
     except FileNotFoundError:
         print(f"Error: Input Markdown file '{input_path}' not found")

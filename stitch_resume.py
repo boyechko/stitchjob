@@ -4,52 +4,61 @@ import xml.etree.ElementTree as ET
 import re
 from pathlib import Path
 
-def escape_latex(text):
-    # LaTeX special characters to escape
-    special = {
-        '&': r'\&',
-        '%': r'\%',
-        '$': r'\$',  # this will be skipped inside math
-        '#': r'\#',
-        '_': r'\_',
-        '~': r'\textasciitilde{}',
-        '^': r'\^{}',
-    }
+class LaTeX:
+    @staticmethod
+    def smarten_quotes(text):
+        """Smarten ASCII single- and double-quotes for LaTeX."""
+        text = re.sub(r'"(.+?)"', r"``\1''", text)
+        text = re.sub(r"'(.+?)'", r"`\1'", text)
+        return text
 
-    # Pattern to match inline math like $...$
-    math_pattern = re.compile(r'\$(.+?)\$')
+    @staticmethod
+    def escape(text):
+        """Escape LaTeX special characters."""
+        special = {
+            '&': r'\&',
+            '%': r'\%',
+            '$': r'\$',  # this will be skipped inside math
+            '#': r'\#',
+            '_': r'\_',
+            '~': r'\textasciitilde{}',
+            '^': r'\^{}',
+        }
 
-    # Split text into segments: math and non-math
-    parts = []
-    last_end = 0
+        # Pattern to match inline math like $...$
+        math_pattern = re.compile(r'\$(.+?)\$')
 
-    for match in math_pattern.finditer(text):
-        # Text before math → escape
-        before = text[last_end:match.start()]
+        # Split text into segments: math and non-math
+        parts = []
+        last_end = 0
+
+        for match in math_pattern.finditer(text):
+            # Text before math → escape
+            before = text[last_end:match.start()]
+            for char, replacement in special.items():
+                if char == '$':
+                    continue  # don't escape $ outside math yet
+                before = before.replace(char, replacement)
+            before = before.replace('$', r'\$')  # escape remaining dollar signs outside math
+
+            # Math content → leave as-is
+            math = match.group(0)  # includes surrounding $...$
+
+            parts.append(before)
+            parts.append(math)
+            last_end = match.end()
+
+        # Handle the tail (after last match)
+        after = text[last_end:]
         for char, replacement in special.items():
             if char == '$':
-                continue  # don't escape $ outside math yet
-            before = before.replace(char, replacement)
-        before = before.replace('$', r'\$')  # escape remaining dollar signs outside math
+                continue
+            after = after.replace(char, replacement)
+        after = after.replace('$', r'\$')
 
-        # Math content → leave as-is
-        math = match.group(0)  # includes surrounding $...$
+        parts.append(after)
 
-        parts.append(before)
-        parts.append(math)
-        last_end = match.end()
-
-    # Handle the tail (after last match)
-    after = text[last_end:]
-    for char, replacement in special.items():
-        if char == '$':
-            continue
-        after = after.replace(char, replacement)
-    after = after.replace('$', r'\$')
-
-    parts.append(after)
-
-    return ''.join(parts)
+        return ''.join(parts)
 
 class XmlHelper:
     @staticmethod
@@ -90,7 +99,7 @@ class Section:
         #self.children = [Experience(exp_el) for exp_el in element.findall("experience")]
 
     def to_latex(self):
-        latex = f"\\section*{{{escape_latex(self.heading)}}}\n"
+        latex = f"\\section*{{{LaTeX.escape(self.heading)}}}\n"
         for child in self.children:
             latex += child.to_latex() + "\n"
         return latex
@@ -110,16 +119,16 @@ class Experience:
         \datedsubsection{%(title)s}{%(begin)s -- %(end)s}
         \organization{%(organization)s}[%(location)s][%(blurb)s]
         """ % {
-            'title': escape_latex(self.title),
-            'begin': escape_latex(self.begin),
-            'end': escape_latex(self.end),
-            'organization': escape_latex(self.organization),
-            'location': escape_latex(self.location),
-            'blurb': escape_latex(self.blurb)
+            'title': LaTeX.escape(self.title),
+            'begin': LaTeX.escape(self.begin),
+            'end': LaTeX.escape(self.end),
+            'organization': LaTeX.escape(self.organization),
+            'location': LaTeX.escape(self.location),
+            'blurb': LaTeX.smarten_quotes(LaTeX.escape(self.blurb))
         }
         latex += "\\begin{itemize}\n"
         for item in self.items:
-            latex += f"  \\item {escape_latex(item)}\n"
+            latex += f"  \\item {LaTeX.escape(item)}\n"
         latex += "\\end{itemize}\n"
         return latex
 
@@ -132,11 +141,11 @@ class Degree:
         self.location = XmlHelper.findtext(element, "location")
 
     def to_latex(self):
-        date = escape_latex(self.date)
-        type = escape_latex(self.type)
-        field = escape_latex(self.field)
-        school = escape_latex(self.school)
-        location = escape_latex(self.location)
+        date = LaTeX.escape(self.date)
+        type = LaTeX.escape(self.type)
+        field = LaTeX.escape(self.field)
+        school = LaTeX.escape(self.school)
+        location = LaTeX.escape(self.location)
 
         return f"\\degree{{{type}}}{{{field}}}{{{school}}}{{{location}}}{{{date}}}\n"
 
@@ -156,14 +165,14 @@ class Skill:
         self.name = element.text
 
     def to_latex(self):
-        return escape_latex(self.name)
+        return LaTeX.smarten_quotes(LaTeX.escape(self.name))
 
 class Description:
     def __init__(self, element):
         self.text = element.text
 
     def to_latex(self):
-        return escape_latex(self.text)
+        return LaTeX.smarten_quotes(LaTeX.escape(self.text))
 
 class Contact:
     """Contact information of the resume holder."""
