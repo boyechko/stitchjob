@@ -1,0 +1,4 @@
+<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <documentElement prefix="" localName="resume" typeId="Resume"/>
+  <typeId id="Resume" uri="resume.rnc"/>
+</locatingRules>

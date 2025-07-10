@@ -1,0 +1,56 @@
+# Resume schema for Stitchjob
+# Format: RELAX NG Compact Syntax
+# This file defines the structure of valid resume.xml files
+
+default namespace = ""
+
+start = element resume {
+  (contact | section)*
+}
+
+contact = element contact {
+  element name { text },
+  element email { text },
+  element phone { text },
+  element location { text },
+  element linkedin { text }?,
+  element github { text }?,
+  element website { text }?
+}
+
+section = element section {
+  attribute heading { text },
+  attribute type { text }?,
+  (
+    description
+    | skills
+    | experience+
+    | degree+
+  )
+}
+
+description = element description { text }
+
+skills = element skills {
+  element skill { text }+
+}
+
+experience = element experience {
+  attribute begin { text },
+  attribute end { text },
+  element title { text },
+  element organization { text },
+  element location { text },
+  element blurb { text }?,
+  element items {
+    element item { text }+
+  }
+}
+
+degree = element degree {
+  element date { text },
+  element type { text },
+  element field { text },
+  element school { text },
+  element location { text }
+}
