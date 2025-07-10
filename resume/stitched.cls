@@ -1,3 +1,4 @@
+% Tangled from Crispy Memory on [2025-07-09 Wed 17:49]
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{stitched}[2025/06/29 Stitchjob Resume Class]
 
@@ -44,7 +45,7 @@
 
 \RequirePackage{titlesec}
 %\titleformat{\section}{\large\color{customblue}\bfseries}{}{0em}{}
-\titleformat*{\section}{\large\bfseries\color{customblue}\scshape}
+\titleformat*{\section}{\large\color{customblue}\scshape}
 \titlespacing{\section}{0pt}{\smallskipamount}{\smallskipamount}
 
 \titleformat*{\subsection}{\normalsize\bfseries}
