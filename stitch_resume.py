@@ -190,6 +190,8 @@ class Contact:
         contact = source.findall("./contact")[0]
         for item in contact:
             self.values[item.tag] = item.text
+        if 'website' in self.values:
+            self.values['website'] = re.sub(r'https*://', "", self.values['website'])
 
     def __getitem__(self, key):
         return self.values[key]
