@@ -27,6 +27,43 @@ def compile_pdf(tex_path: Path):
         print(e.stderr.decode(errors="replace"))
         sys.exit(1)
 
+def signature_image(args: argparse.Namespace, metadata: dict[str, str]) -> Path | None:
+    """Return resolved path to signature image or None.
+
+    If `args.signature` is False, return None.
+
+    If signature image is specified in metadata, treat it as relative to the
+    input file. Otherwise, use command-line argument (default:
+    letter/signature.png), interpreted relative to the script location.
+
+    Raises an error if the resolved file is not found."""
+    input_path = Path(args.input)
+
+    if not args.signature:
+        return None
+    if 'signature_image' in metadata:
+        # Relative to input file
+        sig_path = (input_path.parent / metadata['signature_image']).resolve()
+    else:
+        # Relative to script
+        sig_path = (Path(__file__).parent / args.signature_image).resolve()
+
+    if not sig_path.exists():
+        # Display path relative to script in the error message
+        display_path = sig_path
+        try:
+            display_path = sig_path.relative_to(Path(__file__).parent)
+        except ValueError:
+            pass
+        print(f"\nError: Signature file '{display_path}' not found")
+        sys.exit(1)
+
+    # Return image location relative to input file path
+    try:
+        return sig_path.relative_to(input_path.parent.resolve())
+    except ValueError:
+        return sig_path
+
 def main():
     parser = argparse.ArgumentParser(description="Generate LaTeX cover letter from Markdown")
     parser.add_argument("input", nargs="?",
@@ -35,7 +72,10 @@ def main():
     parser.add_argument("-r", "--resume", type=str,
                         default="resume/resume.xml",
                         help="XML resume file with contact info (default: resume/resume.xml)")
-    parser.add_argument("-s", "--signature", type=str,
+    parser.add_argument("-s", "--signature", action="store_true",
+                        help="Include graphic signature")
+    parser.add_argument("-S", "--signature_image", type=str,
+                        default="letter/signature.png",
                         help="Image of the signature to use (default: letter/signature.png)")
     parser.add_argument("-o", "--output", type=str,
                         help="Output LaTeX file (default: <input>.tex)")
@@ -77,18 +117,6 @@ def main():
         print(f"\nError: {err}")
         sys.exit(1)
 
-    if not args.signature:
-        sig_path = None
-    elif args.signature and Path(args.signature).exists():
-        sig_path = Path(args.signature).resolve()
-        try:
-            sig_path = sig_path.relative_to(input_path.parent)
-        except ValueError:
-            pass
-    else:
-        print(f"Error: Signature file '{args.signature}' not found")
-        sys.exit(1)
-
     try:
         template = Template(filename='letter/template.mako')
     except Exception as err:
@@ -96,6 +124,7 @@ def main():
         sys.exit(1)
 
     print(f"Stitching LaTeX file...", end='')
+    sig_path = signature_image(args, parsed.metadata)
     try:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'w') as file:
