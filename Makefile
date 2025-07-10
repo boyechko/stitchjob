@@ -4,8 +4,8 @@ LATEX = pdflatex
 all: resume letter
 
 clean:
-	rm -f $(RESUME_DIR)/*.aux $(RESUME_DIR)/*.log $(RESUME_DIR)/*.out
-	rm -f $(LETTER_DIR)/*.aux $(LETTER_DIR)/*.log $(LETTER_DIR)/*.out
+	cd $(RESUME_DIR) && find . -type f | sed 's|^\./||' | egrep -v -f .clean-keep | xargs -r rm --
+	cd $(LETTER_DIR) && find . -type f | sed 's|^\./||' | egrep -v -f .clean-keep | xargs -r rm --
 
 # Resume
 
@@ -32,7 +32,7 @@ LETTER_TEMPLATE = letter/template.mako
 LETTER_DIR = letter
 LETTER_NAME = letter
 
-.SECONDARY: $(LETTER_DIR)/%.tex 
+.SECONDARY: $(LETTER_DIR)/%.tex
 .PRECIOUS: $(LETTER_DIR)/%.tex $(LETTER_DIR)/%.pdf
 
 letter: $(LETTER_DIR)/$(LETTER_NAME).tex $(LETTER_DIR)/$(LETTER_NAME).pdf

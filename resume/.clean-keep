@@ -1,0 +1,6 @@
+.clean-keep
+^example.(pdf|tex|xml)$
+^resume.(xml|dtd|rnc)$
+schemas.xml
+stitched.cls
+template.xml
