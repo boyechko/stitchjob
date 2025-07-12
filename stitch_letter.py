@@ -8,49 +8,20 @@ import frontmatter
 from mako.template import Template
 
 import stitch_resume
+from stitch_resume import Contact
+from stitch_resume import LaTeX
 
 def main():
-    args = setup_argument_parser().parse_args()
-    input_path = Path(args.input).resolve()
-    resume_path = Path(args.resume)
+    args = parse_args()
 
-    # Compute default output path if not provided
-    if args.output is None:
-        output_path = input_path.with_suffix(".tex")
-    else:
-        output_path = Path(args.output)
+    contact = load_contact_info(args)
+    letter = load_input_file(args)
+    sig_image = determine_signature_image(args, letter)
 
-    print(f"Getting contact information...", end='')
-    contact = get_contact_info(resume_path)
-    print("Done")
+    tex_path = try_stitching_tex(contact, letter, sig_image, args)
+    pdf_path = maybe_compile_pdf(args, tex_path)
 
-    print(f"Parsing Markdown input file...", end='')
-    letter = parse_input_file(input_path)
-    print("Done")
-
-    print(f"Stitching LaTeX file...", end='')
-    template = Template(filename='letter/template.mako')
-    sig_path = signature_image(args, letter)
-    try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as file:
-            file.write(template.render(contact=contact,
-                                       letter=letter,
-                                       signature_image=sig_path))
-        print("Done")
-    except PermissionError as err:
-        print(f"\nError: Cannot write to '{output_path}': {err}")
-    except Exception as err:
-        print(f"\nError: {err}")
-        sys.exit(1)
-
-    if args.pdf:
-        print("Compiling PDF file...", end='')
-        compile_pdf(output_path)
-        print("Done")
-
-def setup_argument_parser() -> argparse.ArgumentParser:
-    """Setup the parser and return it, but don't parse the arguments."""
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate LaTeX cover letter from Markdown")
     parser.add_argument("input", nargs="?",
                         default="letter/letter.md",
@@ -67,13 +38,15 @@ def setup_argument_parser() -> argparse.ArgumentParser:
                         help="Output LaTeX file (default: <input>.tex)")
     parser.add_argument("-p", "--pdf", action="store_true",
                         help="Compile the .tex file to PDF using pdflatex")
-    return parser
+    return parser.parse_args()
 
-def get_contact_info(resume_path: Path) -> stitch_resume.Contact:
-    """Return contact information parsed from XML resume file."""
+def load_contact_info(args: argparse.Namespace) -> Contact:
+    resume_path = Path(args.resume)
     try:
-        resume = stitch_resume.Resume(resume_path)
-        return resume.contact
+        print(f"Getting contact information...", end='')
+        contact = get_contact_from_resume(resume_path)
+        print("Done")
+        return contact
     except FileNotFoundError as err:
         print(f"\nError: XML resume file '{resume_path}' not found")
         sys.exit(1)
@@ -81,22 +54,33 @@ def get_contact_info(resume_path: Path) -> stitch_resume.Contact:
         print(f"\nError: Cannot parse '{resume_path}': {err}")
         sys.exit(1)
 
-def parse_input_file(input_path: Path) -> dict[str, str]:
-    """Parse the input file, returning a dictionary of its content."""
+def get_contact_from_resume(resume_path: Path) -> Contact:
+    resume = stitch_resume.Resume(resume_path)
+    assert isinstance(resume.contact, Contact)
+    return resume.contact
+
+def load_input_file(args: argparse.Namespace) -> dict[str, str]:
+    input_path = Path(args.input)
     try:
-        parsed = frontmatter.load(input_path)
-        letter = {}; letter['body'] = stitch_resume.LaTeX.escape(parsed.content)
-        for key, val in parsed.metadata.items():
-            letter[key] = stitch_resume.LaTeX.escape(val)
+        print(f"Parsing Markdown input file...", end='')
+        letter = parse_input_file(input_path)
+        print("Done")
         return letter
     except FileNotFoundError:
         print(f"\nError: Input Markdown file '{input_path}' not found")
         sys.exit(1)
     except Exception as err:
-        print(f"\nError: {err}")
+        print(f"\nError: While getting contact info: {err}")
         sys.exit(1)
 
-def signature_image(args: argparse.Namespace, metadata: dict[str, str]) -> Path | None:
+def parse_input_file(input_path: Path) -> dict[str, str]:
+    parsed = frontmatter.load(input_path)
+    letter = {}; letter['body'] = LaTeX.escape(parsed.content)
+    for key, val in parsed.metadata.items():
+        letter[key] = LaTeX.escape(val)
+    return letter
+
+def determine_signature_image(args: argparse.Namespace, metadata: dict[str, str]) -> Path | None:
     """Return resolved path to signature image or None.
 
     If `args.signature` is False, return None.
@@ -112,16 +96,16 @@ def signature_image(args: argparse.Namespace, metadata: dict[str, str]) -> Path 
         return None
     if 'signature_image' in metadata:
         # Relative to input file
-        sig_path = (input_path.parent / metadata['signature_image']).resolve()
+        sig_image = (input_path.parent / metadata['signature_image']).resolve()
     else:
         # Relative to script
-        sig_path = (Path(__file__).parent / args.signature_image).resolve()
+        sig_image = (Path(__file__).parent / args.signature_image).resolve()
 
-    if not sig_path.exists():
+    if not sig_image.exists():
         # Display path relative to script in the error message
-        display_path = sig_path
+        display_path = sig_image
         try:
-            display_path = sig_path.relative_to(Path(__file__).parent)
+            display_path = sig_image.relative_to(Path(__file__).parent)
         except ValueError:
             pass
         print(f"\nError: Signature file '{display_path}' not found")
@@ -129,28 +113,62 @@ def signature_image(args: argparse.Namespace, metadata: dict[str, str]) -> Path 
 
     # Return image location relative to input file path
     try:
-        return sig_path.relative_to(input_path.parent.resolve())
+        return sig_image.relative_to(input_path.parent.resolve())
     except ValueError:
-        return sig_path
+        return sig_image
 
-def compile_pdf(tex_path: Path) -> None:
-    """Compile the given LaTeX file into a PDF using pdflatex."""
-    tex_path = tex_path.resolve()
-
+def try_stitching_tex(contact, letter, sig_image, args: argparse.Namespace) -> Path:
     try:
-        result = subprocess.run(
-            ["pdflatex", "-interaction=nonstopmode", f"-output-directory={tex_path.parent}", tex_path.name],
-            check=True,
-            cwd=tex_path.parent,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        return
-    except subprocess.CalledProcessError as e:
-        print("\nError: ")
-        print(e.stdout.decode(errors="replace"))
-        print(e.stderr.decode(errors="replace"))
-        sys.exit(1)
+        print(f"Stitching LaTeX file...", end='')
+        tex_path = stitch_tex(contact, letter, sig_image, args)
+        print("Done")
+        return tex_path
+    except PermissionError as err:
+        print(f"\nError: Cannot write to '{tex_path}': {err}")
+
+def stitch_tex(contact, letter, sig_image, args: argparse.Namespace) -> Path:
+    tex_path = determine_tex_path(args)
+    template = Template(filename='letter/template.mako')
+
+    tex_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(tex_path, 'w') as file:
+        file.write(template.render(contact=contact,
+                                   letter=letter,
+                                   signature_image=sig_image))
+    return tex_path
+
+def determine_tex_path(args: argparse.Namespace) -> Path:
+    if args.output is None:
+        return Path(args.input).with_suffix(".tex")
+    else:
+        return Path(args.output)
+
+def maybe_compile_pdf(args, tex_path: Path) -> Path | None:
+    if args.pdf:
+        try:
+            print("Compiling PDF file...", end='')
+            pdf_path = compile_pdf(tex_path)
+            print("Done")
+            return pdf_path
+        except subprocess.CalledProcessError as e:
+            print("Error")
+            print(e.stdout.decode(errors="replace"))
+            print(e.stderr.decode(errors="replace"))
+            sys.exit(1)
+
+def compile_pdf(tex_path: Path) -> Path:
+    resolved_tex_path = tex_path.resolve()
+    result = subprocess.run(
+        ["pdflatex",
+         "-interaction=nonstopmode",
+         f"-output-directory={resolved_tex_path.parent}",
+         resolved_tex_path.name],
+        check=True,
+        cwd=resolved_tex_path.parent,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    return tex_path.with_suffix(".pdf")
 
 if __name__ == "__main__":
     main()
