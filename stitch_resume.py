@@ -1,79 +1,107 @@
-import sys
 import argparse
-import xml.etree.ElementTree as ET
-import re
 from pathlib import Path
+import re
+import sys
+import xml.etree.ElementTree as ET
 
-class LaTeX:
-    @staticmethod
-    def smarten_quotes(text):
-        """Smarten ASCII single- and double-quotes for LaTeX."""
-        text = re.sub(r'"(.+?)"', r"``\1''", text)
-        text = re.sub(r"'(.+?)'", r"`\1'", text)
-        return text
+def main():
+    parser = argparse.ArgumentParser(description="Generate LaTeX resume from XML")
+    parser.add_argument("input", nargs="?",
+                        default="resume/resume.xml",
+                        help="Input XML file (default: resume/resume.xml)")
+    parser.add_argument("-o", "--output", type=str,
+                        help="Output LaTeX file (default: <input>.tex)")
+    args = parser.parse_args()
+    input_path = Path(args.input).resolve()
 
-    @staticmethod
-    def escape(text):
-        """Escape LaTeX special characters."""
-        special = {
-            '&': r'\&',
-            '%': r'\%',
-            '$': r'\$',  # this will be skipped inside math
-            '#': r'\#',
-            '_': r'\_',
-            '~': r'\textasciitilde{}',
-            '^': r'\^{}',
-        }
+    # Compute default output path if not provided
+    if args.output is None:
+        output_path = input_path.with_suffix(".tex")
+    else:
+        output_path = Path(args.output)
 
-        # Pattern to match inline math like $...$
-        math_pattern = re.compile(r'\$(.+?)\$')
+    print(f"Parsing resume XML file...", end='')
+    try:
+        resume = Resume(input_path)
+        print("Done")
+    except FileNotFoundError:
+        print(f"\nError: File '{args.input}' not found.")
+        sys.exit(1)
+    except ET.ParseError as err:
+        print(f"\nError: Failed to parse '{input_path}': {err}")
+        sys.exit(1)
 
-        # Split text into segments: math and non-math
-        parts = []
-        last_end = 0
+    print(f"Stitching LaTeX file...", end='')
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(resume.to_latex() + "\n", encoding="utf-8")
+        print("Done")
+    except PermissionError as err:
+        print(f"\nError: Cannot write to '{output_path}': {err}")
+    except Exception as err:
+        print(f"\nError: {err}")
+        sys.exit(1)
 
-        for match in math_pattern.finditer(text):
-            # Text before math → escape
-            before = text[last_end:match.start()]
-            for char, replacement in special.items():
-                if char == '$':
-                    continue  # don't escape $ outside math yet
-                before = before.replace(char, replacement)
-            before = before.replace('$', r'\$')  # escape remaining dollar signs outside math
+class Resume:
+    """Object representing a resume."""
 
-            # Math content → leave as-is
-            math = match.group(0)  # includes surrounding $...$
+    def __init__(self, xml_file):
+        """Initializes the Resume from source XML file.
 
-            parts.append(before)
-            parts.append(math)
-            last_end = match.end()
+        Args:
+            xml_file (str or file-like): A path to the XML file or an open file-like object.
+        """
 
-        # Handle the tail (after last match)
-        after = text[last_end:]
-        for char, replacement in special.items():
-            if char == '$':
-                continue
-            after = after.replace(char, replacement)
-        after = after.replace('$', r'\$')
+        root = ET.parse(xml_file).getroot()
+        self.contact = Contact(root)
+        self.sections = [Section(sec_el) for sec_el in root.findall("section")]
 
-        parts.append(after)
+    def to_latex(self):
+        latex = "\\documentclass{stitched}\n"
 
-        return ''.join(parts)
+        latex += self.contact.to_latex()
 
-class XmlHelper:
-    @staticmethod
-    def text(element, default=""):
-        text = element.text
-        if text:
-            return re.sub(r"\s+", " ", text).strip()
-        return default
+        latex += "\n\\begin{document}\n\n"
+        for sec in self.sections:
+            latex += sec.to_latex()
+        latex += "\\end{document}\n"
+        return latex
 
-    @staticmethod
-    def findtext(element, path, default=""):
-        text = element.findtext(path)
-        if text:
-            return re.sub(r"\s+", " ", text).strip()
-        return default
+class Contact:
+    """Contact information of the resume holder."""
+
+    def __init__(self, source):
+        """Initialize the Contact from the XML source.
+
+        Args:
+            source (str or ElementTree): A path to the XML file or its root node.
+        """
+        if not isinstance(source, ET.Element):
+            source = ET.parse(source).getroot()
+
+        self.values = {}
+        contact = source.findall("./contact")[0]
+        for item in contact:
+            self.values[item.tag] = item.text
+        if 'website' in self.values:
+            self.values['website'] = re.sub(r'https*://', "", self.values['website'])
+
+    def __getitem__(self, key):
+        return self.values[key]
+
+    def items(self):
+        return self.values.items()
+
+    def to_latex(self):
+        keys = []
+        latex = "\\setprofile{\n"
+        for key, val in self.values.items():
+            keys.append(f"{key}={{{val}}}")
+        latex += ",\n".join(keys)
+        latex += "\n}\n"
+        return latex
+
+
 
 class Section:
     def __str__(self):
@@ -174,102 +202,76 @@ class Description:
     def to_latex(self):
         return LaTeX.smarten_quotes(LaTeX.escape(self.text))
 
-class Contact:
-    """Contact information of the resume holder."""
+class XmlHelper:
+    @staticmethod
+    def text(element, default=""):
+        text = element.text
+        if text:
+            return re.sub(r"\s+", " ", text).strip()
+        return default
 
-    def __init__(self, source):
-        """Initialize the Contact from the XML source.
+    @staticmethod
+    def findtext(element, path, default=""):
+        text = element.findtext(path)
+        if text:
+            return re.sub(r"\s+", " ", text).strip()
+        return default
 
-        Args:
-            source (str or ElementTree): A path to the XML file or its root node.
-        """
-        if not isinstance(source, ET.Element):
-            source = ET.parse(source).getroot()
+class LaTeX:
+    @staticmethod
+    def smarten_quotes(text):
+        """Smarten ASCII single- and double-quotes for LaTeX."""
+        text = re.sub(r'"(.+?)"', r"``\1''", text)
+        text = re.sub(r"'(.+?)'", r"`\1'", text)
+        return text
 
-        self.values = {}
-        contact = source.findall("./contact")[0]
-        for item in contact:
-            self.values[item.tag] = item.text
-        if 'website' in self.values:
-            self.values['website'] = re.sub(r'https*://', "", self.values['website'])
+    @staticmethod
+    def escape(text):
+        """Escape LaTeX special characters."""
+        special = {
+            '&': r'\&',
+            '%': r'\%',
+            '$': r'\$',  # this will be skipped inside math
+            '#': r'\#',
+            '_': r'\_',
+            '~': r'\textasciitilde{}',
+            '^': r'\^{}',
+        }
 
-    def __getitem__(self, key):
-        return self.values[key]
+        # Pattern to match inline math like $...$
+        math_pattern = re.compile(r'\$(.+?)\$')
 
-    def items(self):
-        return self.values.items()
+        # Split text into segments: math and non-math
+        parts = []
+        last_end = 0
 
-    def to_latex(self):
-        keys = []
-        latex = "\\setprofile{\n"
-        for key, val in self.values.items():
-            keys.append(f"{key}={{{val}}}")
-        latex += ",\n".join(keys)
-        latex += "\n}\n"
-        return latex
+        for match in math_pattern.finditer(text):
+            # Text before math → escape
+            before = text[last_end:match.start()]
+            for char, replacement in special.items():
+                if char == '$':
+                    continue  # don't escape $ outside math yet
+                before = before.replace(char, replacement)
+            before = before.replace('$', r'\$')  # escape remaining dollar signs outside math
 
-class Resume:
-    """Object representing a resume."""
+            # Math content → leave as-is
+            math = match.group(0)  # includes surrounding $...$
 
-    def __init__(self, xml_file):
-        """Initializes the Resume from source XML file.
+            parts.append(before)
+            parts.append(math)
+            last_end = match.end()
 
-        Args:
-            xml_file (str or file-like): A path to the XML file or an open file-like object.
-        """
+        # Handle the tail (after last match)
+        after = text[last_end:]
+        for char, replacement in special.items():
+            if char == '$':
+                continue
+            after = after.replace(char, replacement)
+        after = after.replace('$', r'\$')
 
-        root = ET.parse(xml_file).getroot()
-        self.contact = Contact(root)
-        self.sections = [Section(sec_el) for sec_el in root.findall("section")]
+        parts.append(after)
 
-    def to_latex(self):
-        latex = "\\documentclass{stitched}\n"
-
-        latex += self.contact.to_latex()
-
-        latex += "\n\\begin{document}\n\n"
-        for sec in self.sections:
-            latex += sec.to_latex()
-        latex += "\\end{document}\n"
-        return latex
-
-def main():
-    parser = argparse.ArgumentParser(description="Generate LaTeX resume from XML")
-    parser.add_argument("input", nargs="?",
-                        default="resume/resume.xml",
-                        help="Input XML file (default: resume/resume.xml)")
-    parser.add_argument("-o", "--output", type=str,
-                        help="Output LaTeX file (default: <input>.tex)")
-    args = parser.parse_args()
-    input_path = Path(args.input).resolve()
-
-    # Compute default output path if not provided
-    if args.output is None:
-        output_path = input_path.with_suffix(".tex")
-    else:
-        output_path = Path(args.output)
-
-    print(f"Parsing resume XML file...", end='')
-    try:
-        resume = Resume(input_path)
-        print("Done")
-    except FileNotFoundError:
-        print(f"\nError: File '{args.input}' not found.")
-        sys.exit(1)
-    except ET.ParseError as err:
-        print(f"\nError: Failed to parse '{input_path}': {err}")
-        sys.exit(1)
-
-    print(f"Stitching LaTeX file...", end='')
-    try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(resume.to_latex() + "\n", encoding="utf-8")
-        print("Done")
-    except PermissionError as err:
-        print(f"\nError: Cannot write to '{output_path}': {err}")
-    except Exception as err:
-        print(f"\nError: {err}")
-        sys.exit(1)
+        return ''.join(parts)
 
 if __name__ == "__main__":
     main()
