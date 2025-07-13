@@ -1,24 +1,34 @@
 import argparse
+from dataclasses import dataclass
 from pathlib import Path
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
 import frontmatter
+from frontmatter import Post
 from mako.template import Template
 
 import stitch_resume
 from stitch_resume import Contact
 from stitch_resume import LaTeX
 
+@dataclass
+class Letter:
+    contact: Contact
+    metadata: dict[str, str]
+    content: str
+    signature_image: Path
+
 def main():
     args = parse_args()
 
     contact = load_contact_info(args)
-    letter = load_input_file(args)
-    sig_image = determine_signature_image(args, letter)
+    input_post = load_input_file(args)
+    sig_image = determine_signature_image(args, input_post.metadata)
+    letter = Letter(contact, input_post.metadata, input_post.content, sig_image)
 
-    tex_path = try_stitching_tex(contact, letter, sig_image, args)
+    tex_path = try_stitching_tex(args, letter)
     pdf_path = maybe_compile_pdf(args, tex_path)
 
 def parse_args() -> argparse.Namespace:
@@ -59,26 +69,19 @@ def get_contact_from_resume(resume_path: Path) -> Contact:
     assert isinstance(resume.contact, Contact)
     return resume.contact
 
-def load_input_file(args: argparse.Namespace) -> dict[str, str]:
+def load_input_file(args: argparse.Namespace) -> Post:
     input_path = Path(args.input)
     try:
         print(f"Parsing Markdown input file...", end='')
-        letter = parse_input_file(input_path)
+        post = frontmatter.load(input_path)
         print("Done")
-        return letter
+        return post
     except FileNotFoundError:
         print(f"\nError: Input Markdown file '{input_path}' not found")
         sys.exit(1)
     except Exception as err:
         print(f"\nError: While getting contact info: {err}")
         sys.exit(1)
-
-def parse_input_file(input_path: Path) -> dict[str, str]:
-    parsed = frontmatter.load(input_path)
-    letter = {}; letter['body'] = LaTeX.escape(parsed.content)
-    for key, val in parsed.metadata.items():
-        letter[key] = LaTeX.escape(val)
-    return letter
 
 def determine_signature_image(args: argparse.Namespace, metadata: dict[str, str]) -> Path | None:
     """Return resolved path to signature image or None.
@@ -117,24 +120,26 @@ def determine_signature_image(args: argparse.Namespace, metadata: dict[str, str]
     except ValueError:
         return sig_image
 
-def try_stitching_tex(contact, letter, sig_image, args: argparse.Namespace) -> Path:
+def try_stitching_tex(args: argparse.Namespace, letter: Letter) -> Path:
     try:
         print(f"Stitching LaTeX file...", end='')
-        tex_path = stitch_tex(contact, letter, sig_image, args)
+        tex_path = stitch_tex(args, letter)
         print("Done")
         return tex_path
     except PermissionError as err:
         print(f"\nError: Cannot write to '{tex_path}': {err}")
 
-def stitch_tex(contact, letter, sig_image, args: argparse.Namespace) -> Path:
+def stitch_tex(args: argparse.Namespace, letter: Letter) -> Path:
     tex_path = determine_tex_path(args)
     template = Template(filename='letter/template.mako')
 
+    letter.content = LaTeX.escape(letter.content)
+    for key, val in letter.metadata.items():
+        letter.metadata[key] = LaTeX.escape(val)
+
     tex_path.parent.mkdir(parents=True, exist_ok=True)
     with open(tex_path, 'w') as file:
-        file.write(template.render(contact=contact,
-                                   letter=letter,
-                                   signature_image=sig_image))
+        file.write(template.render(letter=letter))
     return tex_path
 
 def determine_tex_path(args: argparse.Namespace) -> Path:
