@@ -1,46 +1,48 @@
 import argparse
+import logging
 from pathlib import Path
 import re
 import sys
 import xml.etree.ElementTree as ET
 
 def main():
+    logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
+    try:
+        args = parse_args()
+
+        logging.debug("Parsing resume XML file...")
+        input_path = Path(args.input).resolve()
+        resume = Resume(input_path)
+
+        logging.debug("Stitching LaTeX file...")
+        output_path = determine_output_path(args)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(resume.to_latex() + "\n", encoding="utf-8")
+    except FileNotFoundError:
+        logging.error(f"File '{args.input}' not found")
+        sys.exit(1)
+    except ET.ParseError as err:
+        logging.error(f"Failed to parse '{input_path}': {err}")
+        sys.exit(1)
+    except PermissionError as err:
+        logging.error(f"Cannot write to '{output_path}': {err}")
+        sys.exit(1)
+
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate LaTeX resume from XML")
     parser.add_argument("input", nargs="?",
                         default="resume/resume.xml",
                         help="Input XML file (default: resume/resume.xml)")
     parser.add_argument("-o", "--output", type=str,
                         help="Output LaTeX file (default: <input>.tex)")
-    args = parser.parse_args()
-    input_path = Path(args.input).resolve()
+    return parser.parse_args()
 
-    # Compute default output path if not provided
+def determine_output_path(args: argparse.Namespace) -> Path:
+    """Compute default output path if not provided."""
     if args.output is None:
-        output_path = input_path.with_suffix(".tex")
+        return Path(args.input).with_suffix(".tex")
     else:
-        output_path = Path(args.output)
-
-    print(f"Parsing resume XML file...", end='')
-    try:
-        resume = Resume(input_path)
-        print("Done")
-    except FileNotFoundError:
-        print(f"\nError: File '{args.input}' not found.")
-        sys.exit(1)
-    except ET.ParseError as err:
-        print(f"\nError: Failed to parse '{input_path}': {err}")
-        sys.exit(1)
-
-    print(f"Stitching LaTeX file...", end='')
-    try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(resume.to_latex() + "\n", encoding="utf-8")
-        print("Done")
-    except PermissionError as err:
-        print(f"\nError: Cannot write to '{output_path}': {err}")
-    except Exception as err:
-        print(f"\nError: {err}")
-        sys.exit(1)
+        return Path(args.output)
 
 class Resume:
     """Object representing a resume."""
@@ -100,8 +102,6 @@ class Contact:
         latex += ",\n".join(keys)
         latex += "\n}\n"
         return latex
-
-
 
 class Section:
     def __str__(self):
