@@ -16,14 +16,38 @@ from stitch_resume import LaTeX
 
 def main():
     logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
-    args = parse_args()
+    try:
+        args = parse_args()
+        input_path = Path(args.input)
+        resume_path = Path(args.resume)
 
-    letter = load_input_file(args)
-    letter.contact = load_contact_info(args)
-    letter.signature_image = determine_signature_image(args, letter)
+        logging.debug("Parsing Markdown input file...")
+        letter = Letter.from_file(input_path)
 
-    tex_path = try_stitching_tex(args, letter)
-    pdf_path = maybe_compile_pdf(args, tex_path)
+        logging.debug("Getting contact information...")
+        letter.contact = stitch_resume.Resume(resume_path).contact
+
+        letter.signature_image = determine_signature_image(args, letter)
+
+        logging.debug("Stitching LaTeX file...")
+        tex_path = stitch_tex(args, letter)
+
+        pdf_path = maybe_compile_pdf(args, tex_path)
+    except FileNotFoundError as err:
+        log_error_and_exit(err)
+    except PermissionError as err:
+        log_error_and_exit(err)
+    except ET.ParseError as err:
+        log_error_and_exit(err, f"Cannot parse '{resume_path}'")
+    except SignatureImageNotFound as err:
+        log_error_and_exit(err)
+
+def log_error_and_exit(err: Exception, msg: str | None = None) -> None:
+    if msg:
+        logging.error(msg)
+
+    logging.error(str(err))
+    sys.exit(1)
 
 @dataclass
 class Letter:
@@ -55,34 +79,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-p", "--pdf", action="store_true",
                         help="Compile the .tex file to PDF using pdflatex")
     return parser.parse_args()
-
-def load_contact_info(args: argparse.Namespace) -> Contact:
-    resume_path = Path(args.resume)
-    try:
-        logging.debug("Getting contact information...")
-        contact = get_contact_from_resume(resume_path)
-        return contact
-    except FileNotFoundError as err:
-        logging.error(f"XML resume file '{resume_path}' not found")
-        sys.exit(1)
-    except ET.ParseError as err:
-        logging.error(f"Cannot parse '{resume_path}': {err}")
-        sys.exit(1)
-
-def get_contact_from_resume(resume_path: Path) -> Contact:
-    resume = stitch_resume.Resume(resume_path)
-    assert isinstance(resume.contact, Contact)
-    return resume.contact
-
-def load_input_file(args: argparse.Namespace) -> Letter:
-    input_path = Path(args.input)
-    try:
-        logging.debug("Parsing Markdown input file...")
-        letter = Letter.from_file(input_path)
-        return letter
-    except FileNotFoundError:
-        logging.error(f"Input Markdown file '{input_path}' not found")
-        sys.exit(1)
 
 def determine_signature_image(args: argparse.Namespace, letter: Letter) -> Path | None:
     """Return resolved path to signature image or None.
@@ -125,14 +121,6 @@ class SignatureImageNotFound(Exception):
     def __init__(self, path: Path):
         self.path = path
         super().__init__(f"Signature image not found: {path}")
-
-def try_stitching_tex(args: argparse.Namespace, letter: Letter) -> Path:
-    try:
-        logging.debug("Stitching LaTeX file...")
-        tex_path = stitch_tex(args, letter)
-        return tex_path
-    except PermissionError as err:
-        logging.error(f"Cannot write to '{tex_path}': {err}")
 
 def stitch_tex(args: argparse.Namespace, letter: Letter) -> Path:
     tex_path = determine_tex_path(args)
