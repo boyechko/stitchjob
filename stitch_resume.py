@@ -2,6 +2,7 @@ import argparse
 import logging
 from pathlib import Path
 import re
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
@@ -18,6 +19,9 @@ def main():
         output_path = determine_output_path(args)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(resume.to_latex() + "\n", encoding="utf-8")
+
+        maybe_compile_pdf(args, output_path)
+
     except FileNotFoundError:
         logging.error(f"File '{args.input}' not found")
         sys.exit(1)
@@ -35,6 +39,8 @@ def parse_args() -> argparse.Namespace:
                         help="Input XML file (default: resume/resume.xml)")
     parser.add_argument("-o", "--output", type=str,
                         help="Output LaTeX file (default: <input>.tex)")
+    parser.add_argument("-p", "--pdf", action="store_true",
+                        help="Compile the .tex file to PDF using pdflatex")
     return parser.parse_args()
 
 def determine_output_path(args: argparse.Namespace) -> Path:
@@ -43,6 +49,31 @@ def determine_output_path(args: argparse.Namespace) -> Path:
         return Path(args.input).with_suffix(".tex")
     else:
         return Path(args.output)
+
+def maybe_compile_pdf(args: argparse.Namespace, tex_path: Path) -> Path | None:
+    if args.pdf:
+        try:
+            logging.debug("Compiling PDF file...")
+            pdf_path = compile_pdf(tex_path)
+            return pdf_path
+        except subprocess.CalledProcessError as e:
+            logging.error(e.stdout.decode(errors="replace"))
+            logging.error(e.stderr.decode(errors="replace"))
+            sys.exit(1)
+
+def compile_pdf(tex_path: Path) -> Path:
+    resolved_tex_path = tex_path.resolve()
+    result = subprocess.run(
+        ["pdflatex",
+         "-interaction=nonstopmode",
+         f"-output-directory={resolved_tex_path.parent}",
+         resolved_tex_path.name],
+        check=True,
+        cwd=resolved_tex_path.parent,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    return tex_path.with_suffix(".pdf")
 
 class Resume:
     """Object representing a resume."""
