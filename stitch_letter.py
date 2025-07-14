@@ -34,19 +34,24 @@ def main():
 
         pdf_path = maybe_compile_pdf(args, tex_path)
     except FileNotFoundError as err:
-        log_error_and_exit(err)
+        log_error_and_exit(err, "File not found")
     except PermissionError as err:
-        log_error_and_exit(err)
+        log_error_and_exit(err, f"Permission denied when writing '{tex_path}'")
     except ET.ParseError as err:
         log_error_and_exit(err, f"Cannot parse '{resume_path}'")
     except SignatureImageNotFound as err:
         log_error_and_exit(err)
 
 def log_error_and_exit(err: Exception, msg: str | None = None) -> None:
-    if msg:
-        logging.error(msg)
+    filename = getattr(err, "filename", None)
 
-    logging.error(str(err))
+    if msg and filename:
+        logging.error(msg + f": {filename}")
+    elif msg:
+        logging.error(msg)
+    else:
+        logging.error(str(err))
+
     sys.exit(1)
 
 @dataclass
