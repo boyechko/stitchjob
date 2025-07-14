@@ -1,5 +1,5 @@
 import argparse
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 import subprocess
 import sys
@@ -13,23 +13,27 @@ import stitch_resume
 from stitch_resume import Contact
 from stitch_resume import LaTeX
 
-@dataclass
-class Letter:
-    contact: Contact
-    metadata: dict[str, str]
-    content: str
-    signature_image: Path
-
 def main():
     args = parse_args()
 
-    contact = load_contact_info(args)
-    input_post = load_input_file(args)
-    sig_image = determine_signature_image(args, input_post.metadata)
-    letter = Letter(contact, input_post.metadata, input_post.content, sig_image)
+    letter = load_input_file(args)
+    letter.contact = load_contact_info(args)
+    letter.signature_image = determine_signature_image(args, letter)
 
     tex_path = try_stitching_tex(args, letter)
     pdf_path = maybe_compile_pdf(args, tex_path)
+
+@dataclass
+class Letter:
+    contact: Contact | None = None
+    metadata: dict[str, str] = field(default_factory=dict)
+    content: str | None = None
+    signature_image: Path | None = None
+
+    @classmethod
+    def from_file(cls, path: Path) -> "Letter":
+        post = frontmatter.loads(path.read_text())
+        return cls(metadata=post.metadata, content=post.content)
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate LaTeX cover letter from Markdown")
@@ -69,13 +73,13 @@ def get_contact_from_resume(resume_path: Path) -> Contact:
     assert isinstance(resume.contact, Contact)
     return resume.contact
 
-def load_input_file(args: argparse.Namespace) -> Post:
+def load_input_file(args: argparse.Namespace) -> Letter:
     input_path = Path(args.input)
     try:
         print(f"Parsing Markdown input file...", end='')
-        post = frontmatter.load(input_path)
+        letter = Letter.from_file(input_path)
         print("Done")
-        return post
+        return letter
     except FileNotFoundError:
         print(f"\nError: Input Markdown file '{input_path}' not found")
         sys.exit(1)
@@ -83,7 +87,7 @@ def load_input_file(args: argparse.Namespace) -> Post:
         print(f"\nError: While getting contact info: {err}")
         sys.exit(1)
 
-def determine_signature_image(args: argparse.Namespace, metadata: dict[str, str]) -> Path | None:
+def determine_signature_image(args: argparse.Namespace, letter: Letter) -> Path | None:
     """Return resolved path to signature image or None.
 
     If `args.signature` is False, return None.
@@ -97,9 +101,9 @@ def determine_signature_image(args: argparse.Namespace, metadata: dict[str, str]
 
     if not args.signature:
         return None
-    if 'signature_image' in metadata:
+    if 'signature_image' in letter.metadata:
         # Relative to input file
-        sig_image = (input_path.parent / metadata['signature_image']).resolve()
+        sig_image = (input_path.parent / letter.metadata['signature_image']).resolve()
     else:
         # Relative to script
         sig_image = (Path(__file__).parent / args.signature_image).resolve()
@@ -111,14 +115,17 @@ def determine_signature_image(args: argparse.Namespace, metadata: dict[str, str]
             display_path = sig_image.relative_to(Path(__file__).parent)
         except ValueError:
             pass
-        print(f"\nError: Signature file '{display_path}' not found")
-        sys.exit(1)
+        raise SignatureImageNotFound(sig_image)
 
-    # Return image location relative to input file path
+    # Return image location relative to input file path, if possible
     try:
         return sig_image.relative_to(input_path.parent.resolve())
     except ValueError:
         return sig_image
+
+class SignatureImageNotFound(Exception):
+    """Signature image is not found despite being specified."""
+    pass
 
 def try_stitching_tex(args: argparse.Namespace, letter: Letter) -> Path:
     try:
