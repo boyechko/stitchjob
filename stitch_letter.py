@@ -11,8 +11,7 @@ from frontmatter import Post
 from mako.template import Template
 
 import stitch_resume
-from stitch_resume import Contact
-from stitch_resume import LaTeX
+from stitch_resume import Contact, LaTeX, maybe_compile_pdf, compile_pdf
 
 def main():
     logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
@@ -145,31 +144,6 @@ def determine_tex_path(args: argparse.Namespace) -> Path:
         return Path(args.input).with_suffix(".tex")
     else:
         return Path(args.output)
-
-def maybe_compile_pdf(args, tex_path: Path) -> Path | None:
-    if args.pdf:
-        try:
-            logging.debug("Compiling PDF file...")
-            pdf_path = compile_pdf(tex_path)
-            return pdf_path
-        except subprocess.CalledProcessError as e:
-            logging.error(e.stdout.decode(errors="replace"))
-            logging.error(e.stderr.decode(errors="replace"))
-            sys.exit(1)
-
-def compile_pdf(tex_path: Path) -> Path:
-    resolved_tex_path = tex_path.resolve()
-    result = subprocess.run(
-        ["pdflatex",
-         "-interaction=nonstopmode",
-         f"-output-directory={resolved_tex_path.parent}",
-         resolved_tex_path.name],
-        check=True,
-        cwd=resolved_tex_path.parent,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    return tex_path.with_suffix(".pdf")
 
 if __name__ == "__main__":
     main()
