@@ -1,5 +1,6 @@
 import argparse
 from dataclasses import dataclass, field
+import logging
 from pathlib import Path
 import subprocess
 import sys
@@ -14,6 +15,7 @@ from stitch_resume import Contact
 from stitch_resume import LaTeX
 
 def main():
+    logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
     args = parse_args()
 
     letter = load_input_file(args)
@@ -57,15 +59,14 @@ def parse_args() -> argparse.Namespace:
 def load_contact_info(args: argparse.Namespace) -> Contact:
     resume_path = Path(args.resume)
     try:
-        print(f"Getting contact information...", end='')
+        logging.debug("Getting contact information...")
         contact = get_contact_from_resume(resume_path)
-        print("Done")
         return contact
     except FileNotFoundError as err:
-        print(f"\nError: XML resume file '{resume_path}' not found")
+        logging.error(f"XML resume file '{resume_path}' not found")
         sys.exit(1)
     except ET.ParseError as err:
-        print(f"\nError: Cannot parse '{resume_path}': {err}")
+        logging.error(f"Cannot parse '{resume_path}': {err}")
         sys.exit(1)
 
 def get_contact_from_resume(resume_path: Path) -> Contact:
@@ -76,15 +77,11 @@ def get_contact_from_resume(resume_path: Path) -> Contact:
 def load_input_file(args: argparse.Namespace) -> Letter:
     input_path = Path(args.input)
     try:
-        print(f"Parsing Markdown input file...", end='')
+        logging.debug("Parsing Markdown input file...")
         letter = Letter.from_file(input_path)
-        print("Done")
         return letter
     except FileNotFoundError:
-        print(f"\nError: Input Markdown file '{input_path}' not found")
-        sys.exit(1)
-    except Exception as err:
-        print(f"\nError: While getting contact info: {err}")
+        logging.error(f"Input Markdown file '{input_path}' not found")
         sys.exit(1)
 
 def determine_signature_image(args: argparse.Namespace, letter: Letter) -> Path | None:
@@ -115,7 +112,7 @@ def determine_signature_image(args: argparse.Namespace, letter: Letter) -> Path 
             display_path = sig_image.relative_to(Path(__file__).parent)
         except ValueError:
             pass
-        raise SignatureImageNotFound(sig_image)
+        raise SignatureImageNotFound(display_path)
 
     # Return image location relative to input file path, if possible
     try:
@@ -125,16 +122,17 @@ def determine_signature_image(args: argparse.Namespace, letter: Letter) -> Path 
 
 class SignatureImageNotFound(Exception):
     """Signature image is not found despite being specified."""
-    pass
+    def __init__(self, path: Path):
+        self.path = path
+        super().__init__(f"Signature image not found: {path}")
 
 def try_stitching_tex(args: argparse.Namespace, letter: Letter) -> Path:
     try:
-        print(f"Stitching LaTeX file...", end='')
+        logging.debug("Stitching LaTeX file...")
         tex_path = stitch_tex(args, letter)
-        print("Done")
         return tex_path
     except PermissionError as err:
-        print(f"\nError: Cannot write to '{tex_path}': {err}")
+        logging.error(f"Cannot write to '{tex_path}': {err}")
 
 def stitch_tex(args: argparse.Namespace, letter: Letter) -> Path:
     tex_path = determine_tex_path(args)
@@ -158,14 +156,12 @@ def determine_tex_path(args: argparse.Namespace) -> Path:
 def maybe_compile_pdf(args, tex_path: Path) -> Path | None:
     if args.pdf:
         try:
-            print("Compiling PDF file...", end='')
+            logging.debug("Compiling PDF file...")
             pdf_path = compile_pdf(tex_path)
-            print("Done")
             return pdf_path
         except subprocess.CalledProcessError as e:
-            print("Error")
-            print(e.stdout.decode(errors="replace"))
-            print(e.stderr.decode(errors="replace"))
+            logging.error(e.stdout.decode(errors="replace"))
+            logging.error(e.stderr.decode(errors="replace"))
             sys.exit(1)
 
 def compile_pdf(tex_path: Path) -> Path:
