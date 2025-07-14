@@ -76,20 +76,12 @@ def compile_pdf(tex_path: Path) -> Path:
     return tex_path.with_suffix(".pdf")
 
 class Resume:
-    """Object representing a resume."""
-
-    def __init__(self, xml_file):
-        """Initializes the Resume from source XML file.
-
-        Args:
-            xml_file (str or file-like): A path to the XML file or an open file-like object.
-        """
-
+    def __init__(self, xml_file: Path):
         root = ET.parse(xml_file).getroot()
         self.contact = Contact(root)
         self.sections = [Section(sec_el) for sec_el in root.findall("section")]
 
-    def to_latex(self):
+    def to_latex(self) -> str:
         latex = "\\documentclass{stitched}\n"
 
         latex += self.contact.to_latex()
@@ -101,14 +93,7 @@ class Resume:
         return latex
 
 class Contact:
-    """Contact information of the resume holder."""
-
-    def __init__(self, source):
-        """Initialize the Contact from the XML source.
-
-        Args:
-            source (str or ElementTree): A path to the XML file or its root node.
-        """
+    def __init__(self, source: Path | ET.Element):
         if not isinstance(source, ET.Element):
             source = ET.parse(source).getroot()
 
@@ -119,13 +104,13 @@ class Contact:
         if 'website' in self.values:
             self.values['website'] = re.sub(r'https*://', "", self.values['website'])
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         return self.values[key]
 
     def items(self):
         return self.values.items()
 
-    def to_latex(self):
+    def to_latex(self) -> str:
         keys = []
         latex = "\\setprofile{\n"
         for key, val in self.values.items():
@@ -138,7 +123,7 @@ class Section:
     def __str__(self):
         return f"Section({self.type=}, {self.heading=}, {self.children.count()})"
 
-    def __init__(self, element):
+    def __init__(self, element: ET.Element):
         self.type = element.attrib.get("type")
         self.heading = element.attrib.get("heading", "Section")
         self.children = []
@@ -157,14 +142,14 @@ class Section:
             self.children.append(obj)
         #self.children = [Experience(exp_el) for exp_el in element.findall("experience")]
 
-    def to_latex(self):
+    def to_latex(self) -> str:
         latex = f"\\section*{{{LaTeX.escape(self.heading)}}}\n"
         for child in self.children:
             latex += child.to_latex() + "\n"
         return latex
 
 class Experience:
-    def __init__(self, element):
+    def __init__(self, element: ET.Element):
         self.title = XmlHelper.findtext(element, "title")
         self.organization = XmlHelper.findtext(element, "organization")
         self.location = XmlHelper.findtext(element, "location")
@@ -173,7 +158,7 @@ class Experience:
         self.end = element.attrib.get("end", "???")
         self.items = [XmlHelper.text(item) for item in element.findall("items/item")]
 
-    def to_latex(self):
+    def to_latex(self) -> str:
         latex = r"""
         \datedsubsection{%(title)s}{%(begin)s -- %(end)s}
         \organization{%(organization)s}[%(location)s][%(blurb)s]
@@ -192,14 +177,14 @@ class Experience:
         return latex
 
 class Degree:
-    def __init__(self, element):
+    def __init__(self, element: ET.Element):
         self.date = XmlHelper.findtext(element, "date")
         self.type = XmlHelper.findtext(element, "type")
         self.field = XmlHelper.findtext(element, "field")
         self.school = XmlHelper.findtext(element, "school")
         self.location = XmlHelper.findtext(element, "location")
 
-    def to_latex(self):
+    def to_latex(self) -> str:
         date = LaTeX.escape(self.date)
         type = LaTeX.escape(self.type)
         field = LaTeX.escape(self.field)
@@ -209,10 +194,10 @@ class Degree:
         return f"\\degree{{{type}}}{{{field}}}{{{school}}}{{{location}}}{{{date}}}\n"
 
 class SkillSection:
-    def __init__(self, element):
+    def __init__(self, element: ET.Element):
         self.skills = [Skill(skill_el) for skill_el in element.findall("skill")]
 
-    def to_latex(self):
+    def to_latex(self) -> str:
         latex = f"\\begin{{skills}}\n"
         for skill in self.skills:
             latex += f"\\item {skill.to_latex()}\n"
@@ -220,29 +205,29 @@ class SkillSection:
         return latex
 
 class Skill:
-    def __init__(self, element):
+    def __init__(self, element: ET.Element):
         self.name = element.text
 
-    def to_latex(self):
+    def to_latex(self) -> str:
         return LaTeX.smarten_quotes(LaTeX.escape(self.name))
 
 class Description:
-    def __init__(self, element):
+    def __init__(self, element: ET.Element):
         self.text = element.text
 
-    def to_latex(self):
+    def to_latex(self) -> str:
         return LaTeX.smarten_quotes(LaTeX.escape(self.text))
 
 class XmlHelper:
     @staticmethod
-    def text(element, default=""):
+    def text(element: ET.Element, default: str = "") -> str:
         text = element.text
         if text:
             return re.sub(r"\s+", " ", text).strip()
         return default
 
     @staticmethod
-    def findtext(element, path, default=""):
+    def findtext(element: ET.Element, path: str, default: str = "") -> str:
         text = element.findtext(path)
         if text:
             return re.sub(r"\s+", " ", text).strip()
@@ -250,15 +235,13 @@ class XmlHelper:
 
 class LaTeX:
     @staticmethod
-    def smarten_quotes(text):
-        """Smarten ASCII single- and double-quotes for LaTeX."""
+    def smarten_quotes(text: str) -> str:
         text = re.sub(r'"(.+?)"', r"``\1''", text)
         text = re.sub(r"'(.+?)'", r"`\1'", text)
         return text
 
     @staticmethod
-    def escape(text):
-        """Escape LaTeX special characters."""
+    def escape(text: str) -> str:
         special = {
             '&': r'\&',
             '%': r'\%',
