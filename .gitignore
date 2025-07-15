@@ -1,5 +1,48 @@
+# macOS system files
 .DS_Store
-.vscode
+
+# VSCode settings
+.vscode/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+.env
+.venv
+venv/
+ENV/
+
+# pytest and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# LaTeX build files
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Resume and letter input and output files
 resume/*
-!resume/stitched.cls
 letter/*
+
+# Allow example input and output files
+!resume/example.xml
+!resume/example.tex
+!resume/example.pdf
+!letter/example.md
+!letter/example.tex
+!letter/example.pdf
+!letter/example_signature.png
