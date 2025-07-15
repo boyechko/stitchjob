@@ -10,8 +10,8 @@ import frontmatter
 from frontmatter import Post
 from mako.template import Template
 
-import stitch_resume
-from stitch_resume import Contact, LaTeX, maybe_compile_pdf, compile_pdf
+from latex import LaTeX
+from stitch_resume import Contact, Resume, maybe_compile_pdf, compile_pdf
 
 def main():
     logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')

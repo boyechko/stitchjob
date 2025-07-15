@@ -4,7 +4,7 @@ import subprocess
 import frontmatter
 import pytest
 
-from stitchjob import *
+from latex import *
 from stitch_resume import *
 from stitch_letter import *
 

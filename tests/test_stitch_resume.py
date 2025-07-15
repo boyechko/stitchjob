@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 
 import pytest
 
-from stitchjob import *
+from latex import *
 from stitch_resume import *
 from stitch_letter import *
 
