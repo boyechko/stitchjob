@@ -10,8 +10,8 @@ import frontmatter
 from frontmatter import Post
 from mako.template import Template
 
-from latex import LaTeX
-from stitch_resume import Contact, Resume, maybe_compile_pdf, compile_pdf
+from stitchjob.latex import LaTeX
+from stitchjob.stitch_resume import Contact, Resume, maybe_compile_pdf, compile_pdf
 
 def main():
     logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
@@ -130,8 +130,9 @@ class SignatureImageNotFound(Exception):
         super().__init__(f"Signature image not found: {path}")
 
 def stitch_tex(args: argparse.Namespace, letter: Letter) -> Path:
+    mako_path = Path(__file__).parent / "letter.mako"
     tex_path = determine_tex_path(args)
-    template = Template(filename='letter/template.mako')
+    template = Template(filename=str(mako_path))
 
     letter.content = LaTeX.escape(letter.content)
     for key, val in letter.metadata.items():

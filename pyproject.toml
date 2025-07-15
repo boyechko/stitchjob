@@ -1,0 +1,17 @@
+[project]
+name = "stitchjob"
+version = "0.1.0"
+description = "Toolchain for assembling tailored resumes and cover letters"
+authors = [{ name = "Richard Boyechko", email = "code@diachronic.net" }]
+readme = "README.md"
+requires-python = ">=3.7"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+"stitchjob" = ["*.cls", "*.mako"]

@@ -2,9 +2,7 @@ import xml.etree.ElementTree as ET
 
 import pytest
 
-from latex import *
-from stitch_resume import *
-from stitch_letter import *
+from stitchjob.stitch_resume import Resume
 
 def test_valid_resume_from_static_file(test_data_session):
     resume = Resume(test_data_session / "resume.xml")
