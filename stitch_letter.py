@@ -20,16 +20,19 @@ def main():
         input_path = Path(args.input)
         resume_path = Path(args.resume)
 
-        logging.debug("Parsing Markdown input file...")
+        logging.debug(f"Parsing Markdown input file '{input_path.name}'")
         letter = Letter.from_file(input_path)
 
-        logging.debug("Getting contact information...")
-        letter.contact = stitch_resume.Resume(resume_path).contact
+        logging.debug(f"Getting contact information from '{resume_path.name}'")
+        letter.contact = Resume(resume_path).contact
 
         letter.signature_image = determine_signature_image(args, letter)
+        if letter.signature_image:
+            logging.debug(f"Using signature image '{letter.signature_image.name}'")
 
-        logging.debug("Stitching LaTeX file...")
+        logging.debug("Stitching LaTeX file")
         tex_path = stitch_tex(args, letter)
+        logging.debug(f"LaTeX file '{tex_path}' stitched")
 
         pdf_path = maybe_compile_pdf(args, tex_path)
     except FileNotFoundError as err:

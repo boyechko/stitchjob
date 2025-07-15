@@ -55,11 +55,13 @@ def maybe_compile_pdf(args: argparse.Namespace, tex_path: Path) -> Path | None:
         try:
             logging.debug("Compiling PDF file...")
             pdf_path = compile_pdf(tex_path)
-            return pdf_path
         except subprocess.CalledProcessError as e:
             logging.error(e.stdout.decode(errors="replace"))
             logging.error(e.stderr.decode(errors="replace"))
             sys.exit(1)
+        else:
+            logging.debug("PDF file '{pdf_path}' compiled")
+            return pdf_path
 
 def compile_pdf(tex_path: Path) -> Path:
     resolved_tex_path = tex_path.resolve()
