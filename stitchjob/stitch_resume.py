@@ -1,26 +1,33 @@
 import argparse
+from importlib.resources import files
 import logging
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
 from stitchjob import latex
 
+RESUME_LATEX_CLASS = files("stitchjob") / "stitched.cls"
+
 def main():
     logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
     try:
         args = parse_args()
 
-        logging.debug("Parsing resume XML file...")
         input_path = Path(args.input).resolve()
+        logging.debug(f"Parsing resume XML file '{input_path}'")
         resume = Resume(input_path)
 
-        logging.debug("Stitching LaTeX file...")
         output_path = determine_output_path(args)
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        logging.debug(f"Stitching LaTeX file '{output_path}'")
         output_path.write_text(resume.to_latex() + "\n", encoding="utf-8")
+
+        logging.debug(f"Ensuring '{RESUME_LATEX_CLASS.name}' is accessible to LaTeX")
+        ensure_latex_class_accessible(output_path)
 
         maybe_compile_pdf(args, output_path)
 
@@ -52,6 +59,12 @@ def determine_output_path(args: argparse.Namespace) -> Path:
     else:
         return Path(args.output)
 
+def ensure_latex_class_accessible(tex_path: Path):
+    """Ensure that 'stitched.cls' is accessible in TeX file's directory."""
+    cls_src = files("stitchjob") / "stitched.cls"
+    cls_dst = tex_path.parent / "stitched.cls"
+    shutil.copy(cls_src, cls_dst)
+
 def maybe_compile_pdf(args: argparse.Namespace, tex_path: Path) -> Path | None:
     if args.pdf:
         try:
@@ -62,11 +75,12 @@ def maybe_compile_pdf(args: argparse.Namespace, tex_path: Path) -> Path | None:
             logging.error(e.stderr.decode(errors="replace"))
             sys.exit(1)
         else:
-            logging.debug("PDF file '{pdf_path}' compiled")
+            logging.debug(f"PDF file '{pdf_path}' compiled")
             return pdf_path
 
 def compile_pdf(tex_path: Path) -> Path:
     resolved_tex_path = tex_path.resolve()
+    ensure_latex_class_accessible(resolved_tex_path)
     result = subprocess.run(
         ["pdflatex",
          "-interaction=nonstopmode",
