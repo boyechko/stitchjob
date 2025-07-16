@@ -86,15 +86,15 @@ class Resume:
         self.sections = [Section(sec_el) for sec_el in root.findall("section")]
 
     def to_latex(self) -> str:
-        latex = "\\documentclass{stitched}\n"
+        output = "\\documentclass{stitched}\n"
 
-        latex += self.contact.to_latex()
+        output += self.contact.to_latex()
 
-        latex += "\n\\begin{document}\n\n"
+        output += "\n\\begin{document}\n\n"
         for sec in self.sections:
-            latex += sec.to_latex()
-        latex += "\\end{document}\n"
-        return latex
+            output += sec.to_latex()
+        output += "\\end{document}\n"
+        return output
 
 class Contact:
     def __init__(self, source: Path | ET.Element):
@@ -116,12 +116,12 @@ class Contact:
 
     def to_latex(self) -> str:
         keys = []
-        latex = "\\setprofile{\n"
+        output = "\\setprofile{\n"
         for key, val in self.values.items():
             keys.append(f"{key}={{{val}}}")
-        latex += ",\n".join(keys)
-        latex += "\n}\n"
-        return latex
+        output += ",\n".join(keys)
+        output += "\n}\n"
+        return output
 
 class Section:
     def __str__(self):
@@ -147,10 +147,10 @@ class Section:
         #self.children = [Experience(exp_el) for exp_el in element.findall("experience")]
 
     def to_latex(self) -> str:
-        latex = f"\\section*{{{latex.escape(self.heading)}}}\n"
+        output = f"\\section*{{{latex.escape(self.heading)}}}\n"
         for child in self.children:
-            latex += child.to_latex() + "\n"
-        return latex
+            output += child.to_latex() + "\n"
+        return output
 
 class Experience:
     def __init__(self, element: ET.Element):
@@ -163,7 +163,7 @@ class Experience:
         self.items = [XmlHelper.text(item) for item in element.findall("items/item")]
 
     def to_latex(self) -> str:
-        latex = r"""
+        output = r"""
         \datedsubsection{%(title)s}{%(begin)s -- %(end)s}
         \organization{%(organization)s}[%(location)s][%(blurb)s]
         """ % {
@@ -174,11 +174,11 @@ class Experience:
             'location': latex.escape(self.location),
             'blurb': latex.smarten_quotes(latex.escape(self.blurb))
         }
-        latex += "\\begin{itemize}\n"
+        output += "\\begin{itemize}\n"
         for item in self.items:
-            latex += f"  \\item {latex.escape(item)}\n"
-        latex += "\\end{itemize}\n"
-        return latex
+            output += f"  \\item {latex.escape(item)}\n"
+        output += "\\end{itemize}\n"
+        return output
 
 class Degree:
     def __init__(self, element: ET.Element):
@@ -202,11 +202,11 @@ class SkillSection:
         self.skills = [Skill(skill_el) for skill_el in element.findall("skill")]
 
     def to_latex(self) -> str:
-        latex = f"\\begin{{skills}}\n"
+        output = f"\\begin{{skills}}\n"
         for skill in self.skills:
-            latex += f"\\item {skill.to_latex()}\n"
-        latex += "\n\\end{skills}\n"
-        return latex
+            output += f"\\item {skill.to_latex()}\n"
+        output += "\n\\end{skills}\n"
+        return output
 
 class Skill:
     def __init__(self, element: ET.Element):
