@@ -32,17 +32,35 @@ def test_signature_image_not_found(test_data_session, tmp_path):
         determine_signature_image(args, letter)
 
 def test_stitch_letter_to_tex(test_data_session):
-    output = subprocess.run(["python3", "stitchjob/stitch_letter.py", test_data_session / "letter.md", "-r", test_data_session / "resume.xml"])
+    output = subprocess.run(["python3", "stitchjob/stitch_letter.py",
+                             test_data_session / "letter.md",
+                             "-r", test_data_session / "resume.xml"])
     tex_path = test_data_session / "letter.tex"
     assert tex_path.exists()
     assert "Documentation Coordinator" in tex_path.read_text()
 
 def test_stitch_letter_to_pdf(test_data_session):
-    output = subprocess.run(["python3", "stitchjob/stitch_letter.py", test_data_session / "letter.md", "-r", test_data_session / "resume.xml", "-p"])
+    output = subprocess.run(["python3", "stitchjob/stitch_letter.py",
+                             test_data_session / "letter.md",
+                             "-r", test_data_session / "resume.xml",
+                             "-p"])
     assert (test_data_session / "letter.pdf").exists()
 
 def test_stitch_letter_signature_image(test_data_session):
-    output = subprocess.run(["python3", "stitchjob/stitch_letter.py", test_data_session / "letter.md", "-r", test_data_session / "resume.xml", "-s", "-S", test_data_session / "signature.png"])
+    output = subprocess.run(["python3", "stitchjob/stitch_letter.py",
+                             test_data_session / "letter.md",
+                            "-r", test_data_session / "resume.xml",
+                            "-s", "-S", test_data_session / "signature.png"])
     tex_path = test_data_session / "letter.tex"
+    assert tex_path.exists()
+    assert "\\includegraphics[height=2em]{signature.png}" in tex_path.read_text()
+
+def test_stitch_letter_with_metadata_signature_image(test_data):
+    letter_path = test_data / "with_signature.md"
+    letter_path.write_text("---\nsignature_image: signature.png\n---\nBody.\n")
+
+    output = subprocess.run(["python3", "stitchjob/stitch_letter.py", letter_path, "-s"])
+
+    tex_path = letter_path.with_suffix(".tex")
     assert tex_path.exists()
     assert "\\includegraphics[height=2em]{signature.png}" in tex_path.read_text()

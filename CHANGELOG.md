@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Signature image specified in letter input file is added even without `-s`
+  command-line argument.
 - Include only contact information mentioned in the XML file.
 - Rename the project to Stitchjob, playing on having a "tailored" job materials.
 - All resume inputs and outputs now reside in `resume/`.

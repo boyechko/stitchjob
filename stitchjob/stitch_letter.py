@@ -100,14 +100,16 @@ def determine_signature_image(args: argparse.Namespace, letter: Letter) -> Path 
     Raises an error if the resolved file is not found."""
     input_path = Path(args.input)
 
-    if not args.signature:
-        return None
     if 'signature_image' in letter.metadata:
         # Relative to input file
         sig_image = (input_path.parent / letter.metadata['signature_image']).resolve()
-    else:
+        logging.debug(f"Using signature image '{letter.metadata['signature_image']}' from metadata")
+    elif args.signature and args.signature_image:
         # Relative to script
         sig_image = (Path(__file__).parent / args.signature_image).resolve()
+        logging.debug(f"Using signature image '{args.signature_image}' from arguments")
+    else:
+        return None
 
     if not sig_image.exists():
         # Display path relative to script in the error message
@@ -128,7 +130,7 @@ class SignatureImageNotFound(Exception):
     """Signature image is not found despite being specified."""
     def __init__(self, path: Path):
         self.path = path
-        super().__init__(f"Signature image not found: {path}")
+        super().__init__(f"Signature image not found: '{path}'")
 
 def stitch_tex(letter: Letter) -> Path:
     mako_path = Path(__file__).parent / "letter.mako"
