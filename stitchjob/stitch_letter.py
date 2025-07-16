@@ -30,9 +30,10 @@ def main():
         if letter.signature_image:
             logging.debug(f"Using signature image '{letter.signature_image.name}'")
 
-        logging.debug("Stitching LaTeX file")
-        tex_path = stitch_tex(args, letter)
-        logging.debug(f"LaTeX file '{tex_path}' stitched")
+        text = stitch_tex(letter)
+        tex_path = determine_tex_path(args)
+        logging.debug(f"Writing LaTeX file '{tex_path}'")
+        write_tex(tex_path, text)
 
         pdf_path = maybe_compile_pdf(args, tex_path)
     except FileNotFoundError as err:
@@ -129,18 +130,20 @@ class SignatureImageNotFound(Exception):
         self.path = path
         super().__init__(f"Signature image not found: {path}")
 
-def stitch_tex(args: argparse.Namespace, letter: Letter) -> Path:
+def stitch_tex(letter: Letter) -> Path:
     mako_path = Path(__file__).parent / "letter.mako"
-    tex_path = determine_tex_path(args)
     template = Template(filename=str(mako_path))
 
     letter.content = latex.escape(letter.content)
     for key, val in letter.metadata.items():
         letter.metadata[key] = latex.escape(val)
 
+    return template.render(letter=letter)
+
+def write_tex(tex_path: Path, text: str) -> Path:
     tex_path.parent.mkdir(parents=True, exist_ok=True)
     with open(tex_path, 'w') as file:
-        file.write(template.render(letter=letter))
+        file.write(text)
     return tex_path
 
 def determine_tex_path(args: argparse.Namespace) -> Path:
