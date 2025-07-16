@@ -9,8 +9,8 @@ clean:
 
 # Resume
 
-RESUME_SCRIPT = stitch_resume.py
-RESUME_CLS = resume/stitched.cls
+RESUME_SCRIPT = stitchjob/stitch_resume.py
+RESUME_CLS = stitchjob/stitched.cls
 RESUME_DIR = resume
 RESUME_NAME = resume
 
@@ -20,15 +20,15 @@ RESUME_NAME = resume
 resume: $(RESUME_DIR)/$(RESUME_NAME).tex $(RESUME_DIR)/$(RESUME_NAME).pdf
 
 $(RESUME_DIR)/%.tex: $(RESUME_DIR)/%.xml $(RESUME_SCRIPT) $(RESUME_CLS)
-	$(PYTHON) $(RESUME_SCRIPT) $< -o $@
+	$(PYTHON) $(RESUME_SCRIPT) $<
 
 $(RESUME_DIR)/%.pdf: $(RESUME_DIR)/%.tex $(RESUME_DIR)/%.xml
 	$(LATEX) -output-directory=$(RESUME_DIR) $<
 
 # Letter
 
-LETTER_SCRIPT = stitch_letter.py
-LETTER_TEMPLATE = letter/template.mako
+LETTER_SCRIPT = stitchjob/stitch_letter.py
+LETTER_TEMPLATE = stitchjob/letter.mako
 LETTER_DIR = letter
 LETTER_NAME = letter
 
@@ -38,7 +38,7 @@ LETTER_NAME = letter
 letter: $(LETTER_DIR)/$(LETTER_NAME).tex $(LETTER_DIR)/$(LETTER_NAME).pdf
 
 $(LETTER_DIR)/%.tex: $(LETTER_DIR)/%.md $(LETTER_SCRIPT) $(LETTER_TEMPLATE)
-	$(PYTHON) $(LETTER_SCRIPT) $< -r $(RESUME_DIR)/$(RESUME_NAME).xml -o $@
+	$(PYTHON) $(LETTER_SCRIPT) $< -r $(RESUME_DIR)/$(RESUME_NAME).xml
 
-$(LETTER_DIR)/%.pdf: $(LETTER_DIR)/%.tex $(LETTER_DIR)/%.md
-	$(LATEX) -output-directory=$(LETTER_DIR) $<
+$(LETTER_DIR)/%.pdf: $(LETTER_DIR)/%.md $(LETTER_DIR)/%.tex
+	$(PYTHON) $(LETTER_SCRIPT) $< -r $(RESUME_DIR)/$(RESUME_NAME).xml -p
