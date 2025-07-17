@@ -16,15 +16,10 @@ def main():
     try:
         args = parse_args()
         stitch_resume(args)
-    except FileNotFoundError:
-        logging.error(f"File '{args.input}' not found")
-        sys.exit(1)
-    except ET.ParseError as err:
-        logging.error(f"Failed to parse '{input_path}': {err}")
-        sys.exit(1)
-    except PermissionError as err:
-        logging.error(f"Cannot write to '{output_path}': {err}")
-        sys.exit(1)
+    except StitchjobException as e:
+        log_error_and_exit(e)
+    except Exception as e:
+        log_error_and_exit(e, "Unhandled error: " + str(e))
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate LaTeX resume from XML")
@@ -74,9 +69,16 @@ def ensure_latex_class_accessible(tex_path: Path):
 
 class Resume:
     def __init__(self, xml_file: Path):
-        root = ET.parse(xml_file).getroot()
-        self.contact = Contact(root)
-        self.sections = [Section(sec_el) for sec_el in root.findall("section")]
+        try:
+            root = ET.parse(xml_file).getroot()
+            self.contact = Contact(root)
+            self.sections = [Section(sec_el) for sec_el in root.findall("section")]
+        except ET.ParseError as e:
+            raise CannotParseXMLResumeError(xml_file, str(e)) from e
+        except FileNotFoundError as e:
+            raise CannotReadResumeFileError(xml_file, "File not found") from e
+        except PermissionError as e:
+            raise CannotReadResumeFileError(xml_file, "Permission denied") from e
 
     def to_latex(self) -> str:
         output = "\\documentclass{stitched}\n"
@@ -88,6 +90,10 @@ class Resume:
             output += sec.to_latex()
         output += "\\end{document}\n"
         return output
+
+class CannotParseXMLResumeError(StitchjobException):
+    def __init__(self, filename: Path, reason: str = ""):
+        super().__init__("Cannot parse XML resume", filename, reason)
 
 class Contact:
     def __init__(self, source: Path | ET.Element):

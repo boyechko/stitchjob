@@ -12,7 +12,7 @@ def test_valid_resume_from_static_file(test_data_session):
 def test_resume_with_invalid_xml(tmp_path):
     path = tmp_path / "invalid.xml"
     path.write_text("<resume><contact><name>Oops</contact></resume>")
-    with pytest.raises(ET.ParseError):
+    with pytest.raises(CannotParseXMLResumeError):
         resume = Resume(path)
 
 def test_stitch_resume_cli_to_tex(test_data):
