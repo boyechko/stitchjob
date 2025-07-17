@@ -26,8 +26,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("input", nargs="?",
                         default="resume/resume.xml",
                         help="Input XML file (default: resume/resume.xml)")
-    parser.add_argument("-o", "--output", type=str,
-                        help="Output LaTeX file (default: <input>.tex)")
     parser.add_argument("-p", "--pdf", action="store_true",
                         help="Compile the .tex file to PDF using pdflatex")
     return parser.parse_args()
@@ -37,7 +35,7 @@ def stitch_resume(args: argparse.Namespace):
     logging.debug(f"Parsing resume XML file '{input_path}'")
     resume = Resume(input_path)
 
-    output_path = determine_output_path(args)
+    output_path = input_path.with_suffix(".tex")
     logging.debug(f"Stitching LaTeX file '{output_path}'")
     write_tex(output_path, resume.to_latex())
 
@@ -45,13 +43,6 @@ def stitch_resume(args: argparse.Namespace):
     ensure_latex_class_accessible(output_path)
 
     maybe_compile_pdf(args, output_path)
-
-def determine_output_path(args: argparse.Namespace) -> Path:
-    """Compute default output path if not provided."""
-    if args.output is None:
-        return Path(args.input).with_suffix(".tex")
-    else:
-        return Path(args.output)
 
 def write_tex(tex_path: Path, text: str) -> bool:
     try:
