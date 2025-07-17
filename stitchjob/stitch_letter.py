@@ -12,35 +12,6 @@ from mako.template import Template
 from stitchjob.shared import *
 from stitchjob.stitch_resume import Contact, Resume
 
-def main():
-    log_setup(logging.DEBUG)
-    try:
-        args = parse_args()
-        stitch_letter(args)
-    except StitchjobException as e:
-        log_error_and_exit(e)
-    except Exception as e:
-        log_error_and_exit(e, "Unhandled error: " + str(e))
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate LaTeX cover letter from Markdown")
-    parser.add_argument("input", nargs="?",
-                        default="letter/letter.md",
-                        help="Input Markdown file (default: letter/letter.md)")
-    parser.add_argument("-r", "--resume", type=str,
-                        default="resume/resume.xml",
-                        help="XML resume file with contact info (default: resume/resume.xml)")
-    parser.add_argument("-s", "--signature", action="store_true",
-                        help="Include graphic signature")
-    parser.add_argument("-S", "--signature_image", type=str,
-                        default="letter/signature.png",
-                        help="Image of the signature to use (default: letter/signature.png)")
-    parser.add_argument("-o", "--output", type=str,
-                        help="Output LaTeX file (default: <input>.tex)")
-    parser.add_argument("-p", "--pdf", action="store_true",
-                        help="Compile the .tex file to PDF using pdflatex")
-    return parser.parse_args()
-
 def stitch_letter(args: argparse.Namespace) -> None:
     input_path = Path(args.input)
     resume_path = Path(args.resume)
@@ -154,6 +125,3 @@ def _write_tex(tex_path: Path, text: str) -> Path:
     with open(tex_path, 'w') as file:
         file.write(text)
     return tex_path
-
-if __name__ == "__main__":
-    main()

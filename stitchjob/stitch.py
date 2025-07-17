@@ -1,9 +1,25 @@
 import argparse
+import logging
 
 from stitchjob.stitch_resume import stitch_resume
 from stitchjob.stitch_letter import stitch_letter
+from stitchjob.shared import *
 
 def main(argv=None):
+    log_setup(logging.DEBUG)
+    try:
+        args = parse_args(argv)
+
+        if args.command == "resume":
+            stitch_resume(args)
+        elif args.command == "letter":
+            stitch_letter(args)
+    except StitchjobException as e:
+        log_error_and_exit(e)
+    except Exception as e:
+        log_error_and_exit(e, "Unhandled error: " + str(e))
+
+def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Stitchjob: Tailored resume and letter builder"
     )
@@ -35,13 +51,7 @@ def main(argv=None):
     letter_parser.add_argument("-p", "--pdf", action="store_true",
                                help="Compile the .tex file to PDF using pdflatex")
 
-    args = parser.parse_args(argv)
-
-    # Placeholder dispatch
-    if args.command == "resume":
-        stitch_resume(args)
-    elif args.command == "letter":
-        stitch_letter(args)
+    return parser.parse_args(argv)
 
 if __name__ == "__main__":
     main()

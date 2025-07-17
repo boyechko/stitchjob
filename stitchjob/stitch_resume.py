@@ -4,31 +4,11 @@ import logging
 from pathlib import Path
 import re
 import shutil
-import sys
 import xml.etree.ElementTree as ET
 
 from stitchjob.shared import *
 
 RESUME_LATEX_CLASS = files("stitchjob") / "stitched.cls"
-
-def main():
-    log_setup(logging.DEBUG)
-    try:
-        args = parse_args()
-        stitch_resume(args)
-    except StitchjobException as e:
-        log_error_and_exit(e)
-    except Exception as e:
-        log_error_and_exit(e, "Unhandled error: " + str(e))
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate LaTeX resume from XML")
-    parser.add_argument("input", nargs="?",
-                        default="resume/resume.xml",
-                        help="Input XML file (default: resume/resume.xml)")
-    parser.add_argument("-p", "--pdf", action="store_true",
-                        help="Compile the .tex file to PDF using pdflatex")
-    return parser.parse_args()
 
 def stitch_resume(args: argparse.Namespace):
     input_path = Path(args.input).resolve()
@@ -226,6 +206,3 @@ class XmlHelper:
         if text:
             return re.sub(r"\s+", " ", text).strip()
         return default
-
-if __name__ == "__main__":
-    main()
