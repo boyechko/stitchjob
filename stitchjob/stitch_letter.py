@@ -17,25 +17,7 @@ def main():
     logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
     try:
         args = parse_args()
-        input_path = Path(args.input)
-        resume_path = Path(args.resume)
-
-        logging.debug(f"Parsing Markdown input file '{input_path.name}'")
-        letter = Letter.from_file(input_path)
-
-        logging.debug(f"Getting contact information from '{resume_path.name}'")
-        letter.contact = Resume(resume_path).contact
-
-        letter.signature_image = determine_signature_image(args, letter)
-        if letter.signature_image:
-            logging.debug(f"Using signature image '{letter.signature_image.name}'")
-
-        text = stitch_tex(letter)
-        tex_path = determine_tex_path(args)
-        logging.debug(f"Writing LaTeX file '{tex_path}'")
-        write_tex(tex_path, text)
-
-        pdf_path = maybe_compile_pdf(args, tex_path)
+        stitch_letter(args)
     except FileNotFoundError as err:
         log_error_and_exit(err, "File not found")
     except PermissionError as err:
@@ -57,18 +39,6 @@ def log_error_and_exit(err: Exception, msg: str | None = None) -> None:
 
     sys.exit(1)
 
-@dataclass
-class Letter:
-    contact: Contact | None = None
-    metadata: dict[str, str] = field(default_factory=dict)
-    content: str | None = None
-    signature_image: Path | None = None
-
-    @classmethod
-    def from_file(cls, path: Path) -> "Letter":
-        post = frontmatter.loads(path.read_text())
-        return cls(metadata=post.metadata, content=post.content)
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate LaTeX cover letter from Markdown")
     parser.add_argument("input", nargs="?",
@@ -87,6 +57,39 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-p", "--pdf", action="store_true",
                         help="Compile the .tex file to PDF using pdflatex")
     return parser.parse_args()
+
+def stitch_letter(args: argparse.Namespace) -> None:
+    input_path = Path(args.input)
+    resume_path = Path(args.resume)
+
+    logging.debug(f"Parsing Markdown input file '{input_path.name}'")
+    letter = Letter.from_file(input_path)
+
+    logging.debug(f"Getting contact information from '{resume_path.name}'")
+    letter.contact = Resume(resume_path).contact
+
+    letter.signature_image = determine_signature_image(args, letter)
+    if letter.signature_image:
+        logging.debug(f"Using signature image '{letter.signature_image.name}'")
+
+    text = stitch_tex(letter)
+    tex_path = determine_tex_path(args)
+    logging.debug(f"Writing LaTeX file '{tex_path}'")
+    write_tex(tex_path, text)
+
+    pdf_path = maybe_compile_pdf(args, tex_path)
+
+@dataclass
+class Letter:
+    contact: Contact | None = None
+    metadata: dict[str, str] = field(default_factory=dict)
+    content: str | None = None
+    signature_image: Path | None = None
+
+    @classmethod
+    def from_file(cls, path: Path) -> "Letter":
+        post = frontmatter.loads(path.read_text())
+        return cls(metadata=post.metadata, content=post.content)
 
 def determine_signature_image(args: argparse.Namespace, letter: Letter) -> Path | None:
     """Return resolved path to signature image or None.
