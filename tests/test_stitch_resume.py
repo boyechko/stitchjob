@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 import pytest
 
-from stitchjob.stitch_resume import Resume, RESUME_LATEX_CLASS
+from stitchjob.stitch_resume import *
 
 def test_valid_resume_from_static_file(test_data_session):
     resume = Resume(test_data_session / "resume.xml")
@@ -15,7 +15,7 @@ def test_resume_with_invalid_xml(tmp_path):
     with pytest.raises(ET.ParseError):
         resume = Resume(path)
 
-def test_stitch_resume_to_tex(test_data):
+def test_stitch_resume_cli_to_tex(test_data):
     output = subprocess.run(["python3", "stitchjob/stitch_resume.py", test_data / "resume.xml"])
     tex_path = test_data / "resume.tex"
     assert tex_path.exists()

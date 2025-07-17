@@ -126,13 +126,13 @@ stitchjob/
 │       └── resume.rnc          # Relax NG Compact version of DTD schema
 ├── stitchjob/                  # Python package
 │   ├── __init__.py             # Package marker
-│   ├── latex.py                # Utilities for outputting LaTeX markup
 │   ├── letter.mako             # LaTeX + Mako template for letters
+│   ├── shared.py               # Functions and exceptions used by both scripts
 │   ├── stitch_resume.py        # Script to convert XML to LaTeX/PDF
 │   ├── stitch_letter.py        # Script to convert MD to LaTeX/PDF
 │   └── stitched.cls            # LaTeX resume class for Stitchjob resumes
 └── tests/                      # Test suite
-    ├── test_latex.py
+    ├── test_shared.py
     ├── test_stitch_letter.py
     └── test_stitch_resume.py
 ```

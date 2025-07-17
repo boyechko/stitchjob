@@ -8,7 +8,7 @@ import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
-from stitchjob import latex
+from stitchjob.shared import *
 
 RESUME_LATEX_CLASS = files("stitchjob") / "stitched.cls"
 
@@ -161,7 +161,7 @@ class Section:
         #self.children = [Experience(exp_el) for exp_el in element.findall("experience")]
 
     def to_latex(self) -> str:
-        output = f"\\section*{{{latex.escape(self.heading)}}}\n"
+        output = f"\\section*{{{escape_tex(self.heading)}}}\n"
         for child in self.children:
             output += child.to_latex() + "\n"
         return output
@@ -181,16 +181,16 @@ class Experience:
         \datedsubsection{%(title)s}{%(begin)s -- %(end)s}
         \organization{%(organization)s}[%(location)s][%(blurb)s]
         """ % {
-            'title': latex.escape(self.title),
-            'begin': latex.escape(self.begin),
-            'end': latex.escape(self.end),
-            'organization': latex.escape(self.organization),
-            'location': latex.escape(self.location),
-            'blurb': latex.smarten_quotes(latex.escape(self.blurb))
+            'title': escape_tex(self.title),
+            'begin': escape_tex(self.begin),
+            'end': escape_tex(self.end),
+            'organization': escape_tex(self.organization),
+            'location': escape_tex(self.location),
+            'blurb': smarten_tex_quotes(escape_tex(self.blurb))
         }
         output += "\\begin{itemize}\n"
         for item in self.items:
-            output += f"  \\item {latex.escape(item)}\n"
+            output += f"  \\item {escape_tex(item)}\n"
         output += "\\end{itemize}\n"
         return output
 
@@ -203,11 +203,11 @@ class Degree:
         self.location = XmlHelper.findtext(element, "location")
 
     def to_latex(self) -> str:
-        date = latex.escape(self.date)
-        type = latex.escape(self.type)
-        field = latex.escape(self.field)
-        school = latex.escape(self.school)
-        location = latex.escape(self.location)
+        date = escape_tex(self.date)
+        type = escape_tex(self.type)
+        field = escape_tex(self.field)
+        school = escape_tex(self.school)
+        location = escape_tex(self.location)
 
         return f"\\degree{{{type}}}{{{field}}}{{{school}}}{{{location}}}{{{date}}}\n"
 
@@ -227,14 +227,14 @@ class Skill:
         self.name = element.text
 
     def to_latex(self) -> str:
-        return latex.smarten_quotes(latex.escape(self.name))
+        return smarten_tex_quotes(escape_tex(self.name))
 
 class Description:
     def __init__(self, element: ET.Element):
         self.text = element.text
 
     def to_latex(self) -> str:
-        return latex.smarten_quotes(latex.escape(self.text))
+        return smarten_tex_quotes(escape_tex(self.text))
 
 class XmlHelper:
     @staticmethod

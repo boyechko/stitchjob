@@ -10,7 +10,7 @@ import frontmatter
 from frontmatter import Post
 from mako.template import Template
 
-from stitchjob import latex
+from stitchjob.shared import *
 from stitchjob.stitch_resume import Contact, Resume, maybe_compile_pdf, compile_pdf
 
 def main():
@@ -139,9 +139,9 @@ def render_tex(letter: Letter) -> Path:
     mako_path = Path(__file__).parent / "letter.mako"
     template = Template(filename=str(mako_path))
 
-    letter.content = latex.escape(letter.content)
+    letter.content = escape_tex(letter.content)
     for key, val in letter.metadata.items():
-        letter.metadata[key] = latex.escape(val)
+        letter.metadata[key] = escape_tex(val)
 
     return template.render(letter=letter)
 

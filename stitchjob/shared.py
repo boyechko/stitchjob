@@ -1,11 +1,11 @@
 import re
 
-def smarten_quotes(text: str) -> str:
+def smarten_tex_quotes(text: str) -> str:
     text = re.sub(r'"(.+?)"', r"``\1''", text)
     text = re.sub(r"'(.+?)'", r"`\1'", text)
     return text
 
-def escape(text: str) -> str:
+def escape_tex(text: str) -> str:
     special = {
         '&': r'\&',
         '%': r'\%',
