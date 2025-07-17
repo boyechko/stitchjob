@@ -15,21 +15,7 @@ def main():
     logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
     try:
         args = parse_args()
-
-        input_path = Path(args.input).resolve()
-        logging.debug(f"Parsing resume XML file '{input_path}'")
-        resume = Resume(input_path)
-
-        output_path = determine_output_path(args)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        logging.debug(f"Stitching LaTeX file '{output_path}'")
-        output_path.write_text(resume.to_latex() + "\n", encoding="utf-8")
-
-        logging.debug(f"Ensuring '{RESUME_LATEX_CLASS.name}' is accessible to LaTeX")
-        ensure_latex_class_accessible(output_path)
-
-        maybe_compile_pdf(args, output_path)
-
+        stitch_resume(args)
     except FileNotFoundError:
         logging.error(f"File '{args.input}' not found")
         sys.exit(1)
@@ -50,6 +36,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-p", "--pdf", action="store_true",
                         help="Compile the .tex file to PDF using pdflatex")
     return parser.parse_args()
+
+def stitch_resume(args: argparse.Namespace):
+    input_path = Path(args.input).resolve()
+    logging.debug(f"Parsing resume XML file '{input_path}'")
+    resume = Resume(input_path)
+
+    output_path = determine_output_path(args)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    logging.debug(f"Stitching LaTeX file '{output_path}'")
+    output_path.write_text(resume.to_latex() + "\n", encoding="utf-8")
+
+    logging.debug(f"Ensuring '{RESUME_LATEX_CLASS.name}' is accessible to LaTeX")
+    ensure_latex_class_accessible(output_path)
+
+    maybe_compile_pdf(args, output_path)
 
 def determine_output_path(args: argparse.Namespace) -> Path:
     """Compute default output path if not provided."""
