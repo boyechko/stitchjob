@@ -19,18 +19,25 @@ def test_letter_without_metadata(tmp_path):
     assert len(letter.metadata.items()) == 0
     assert "Just body content." in letter.content
 
-def test_signature_image_not_found(test_data_session):
+def test_signature_image_not_found_exception(test_data_session):
     args = default_args(test_data_session)
     args.signature = True
     args.signature_image = "foobar.png"
     assert not Path("foobar.png").exists()
-    with pytest.raises(SignatureImageNotFound):
+    with pytest.raises(SignatureImageNotFoundError):
         stitch_letter(args)
 
 def test_stitch_letter_to_tex(test_data_session):
     args = default_args(test_data_session)
     stitch_letter(args)
     assert text_in_tex_file(args, "Documentation Coordinator")
+
+def test_write_tex_raises_exception(test_data):
+    args = default_args(test_data)
+    tex_path = determine_tex_path(args)
+    tex_path.touch(000)
+    with pytest.raises(CannotWriteToTeXFileError):
+        write_tex(tex_path, "Irrelevant")
 
 def test_stitch_letter_signature_image_from_cli(test_data_session):
     args = default_args(test_data_session)

@@ -121,19 +121,13 @@ def determine_signature_image(args: argparse.Namespace, letter: Letter) -> Path 
             display_path = sig_image.relative_to(Path(__file__).parent)
         except ValueError:
             pass
-        raise SignatureImageNotFound(display_path)
+        raise SignatureImageNotFoundError(display_path)
 
     # Return image location relative to input file path, if possible
     try:
         return sig_image.relative_to(input_path.parent.resolve())
     except ValueError:
         return sig_image
-
-class SignatureImageNotFound(Exception):
-    """Signature image is not found despite being specified."""
-    def __init__(self, path: Path):
-        self.path = path
-        super().__init__(f"Signature image not found: '{path}'")
 
 def render_tex(letter: Letter) -> Path:
     mako_path = Path(__file__).parent / "letter.mako"
@@ -156,6 +150,33 @@ def determine_tex_path(args: argparse.Namespace) -> Path:
         return Path(args.input).with_suffix(".tex")
     else:
         return Path(args.output)
+# --- Exceptions --- #
+
+class StitchjobException(Exception):
+    def __init__(self, message: str, filename: str | Path, reason: str = ""):
+        self.message = message
+        self.filename = Path(filename) if not isinstance(filename, Path) else filename
+        self.reason = reason
+        super().__init__(self.__str__())
+
+    def __str__(self):
+        if self.reason:
+            return f"{self.message}: {self.filename}: {self.reason}"
+        else:
+            return f"{self.message}: {self.filename}"
+
+class CannotWriteToTeXFileError(StitchjobException):
+    def __init__(self, filename: str | Path, reason: str = ""):
+        super().__init__("Cannot write to TeX file", filename, reason)
+
+class CannotReadResumeFileError(StitchjobException):
+    def __init__(self, filename: str | Path, reason: str = ""):
+        super().__init__("Cannot read XML resume file", filename, reason)
+
+class SignatureImageNotFoundError(StitchjobException):
+    """Signature image is not found despite being specified."""
+    def __init__(self, filename: Path):
+        super().__init__("Signature image not found", filename)
 
 if __name__ == "__main__":
     main()
