@@ -82,3 +82,26 @@ def compile_pdf(tex_path: Path) -> Path:
         stderr=subprocess.PIPE,
     )
     return tex_path.with_suffix(".pdf")
+
+# --- Exceptions --- #
+
+class StitchjobException(Exception):
+    def __init__(self, message: str, filename: str | Path, reason: str = ""):
+        self.message = message
+        self.filename = Path(filename) if not isinstance(filename, Path) else filename
+        self.reason = reason
+        super().__init__(self.__str__())
+
+    def __str__(self):
+        if self.reason:
+            return f"{self.message}: {self.filename}: {self.reason}"
+        else:
+            return f"{self.message}: {self.filename}"
+
+class CannotWriteToTeXFileError(StitchjobException):
+    def __init__(self, filename: str | Path, reason: str = ""):
+        super().__init__("Cannot write to TeX file", filename, reason)
+
+class CannotReadResumeFileError(StitchjobException):
+    def __init__(self, filename: str | Path, reason: str = ""):
+        super().__init__("Cannot read XML resume file", filename, reason)

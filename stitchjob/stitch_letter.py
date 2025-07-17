@@ -134,6 +134,11 @@ def determine_signature_image(args: argparse.Namespace, letter: Letter) -> Path 
     except ValueError:
         return sig_image
 
+class SignatureImageNotFoundError(StitchjobException):
+    """Signature image is not found despite being specified."""
+    def __init__(self, filename: Path):
+        super().__init__("Signature image not found", filename)
+
 def render_tex(letter: Letter) -> Path:
     mako_path = Path(__file__).parent / "letter.mako"
     template = Template(filename=str(mako_path))
@@ -161,34 +166,6 @@ def _write_tex(tex_path: Path, text: str) -> Path:
     with open(tex_path, 'w') as file:
         file.write(text)
     return tex_path
-
-# --- Exceptions --- #
-
-class StitchjobException(Exception):
-    def __init__(self, message: str, filename: str | Path, reason: str = ""):
-        self.message = message
-        self.filename = Path(filename) if not isinstance(filename, Path) else filename
-        self.reason = reason
-        super().__init__(self.__str__())
-
-    def __str__(self):
-        if self.reason:
-            return f"{self.message}: {self.filename}: {self.reason}"
-        else:
-            return f"{self.message}: {self.filename}"
-
-class CannotWriteToTeXFileError(StitchjobException):
-    def __init__(self, filename: str | Path, reason: str = ""):
-        super().__init__("Cannot write to TeX file", filename, reason)
-
-class CannotReadResumeFileError(StitchjobException):
-    def __init__(self, filename: str | Path, reason: str = ""):
-        super().__init__("Cannot read XML resume file", filename, reason)
-
-class SignatureImageNotFoundError(StitchjobException):
-    """Signature image is not found despite being specified."""
-    def __init__(self, filename: Path):
-        super().__init__("Signature image not found", filename)
 
 if __name__ == "__main__":
     main()
