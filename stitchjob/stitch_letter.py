@@ -22,18 +22,6 @@ def main():
     except Exception as e:
         log_error_and_exit(e, "Unhandled error: " + str(e))
 
-def log_error_and_exit(err: Exception, msg: str | None = None) -> None:
-    filename = getattr(err, "filename", None)
-
-    if msg and filename:
-        logging.error(msg + f": {filename}")
-    elif msg:
-        logging.error(msg)
-    else:
-        logging.error(str(err))
-
-    sys.exit(1)
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate LaTeX cover letter from Markdown")
     parser.add_argument("input", nargs="?",
