@@ -12,7 +12,7 @@ from stitchjob.shared import *
 RESUME_LATEX_CLASS = files("stitchjob") / "stitched.cls"
 
 def main():
-    logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
+    log_setup(logging.DEBUG)
     try:
         args = parse_args()
         stitch_resume(args)

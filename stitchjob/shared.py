@@ -56,6 +56,9 @@ def smarten_tex_quotes(text: str) -> str:
     text = re.sub(r"'(.+?)'", r"`\1'", text)
     return text
 
+def log_setup(level):
+    logging.basicConfig(level=level, format='%(levelname)s: %(message)s')
+
 def log_error_and_exit(err: Exception, msg: str | None = None) -> None:
     filename = getattr(err, "filename", None)
 

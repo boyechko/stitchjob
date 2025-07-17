@@ -13,7 +13,7 @@ from stitchjob.shared import *
 from stitchjob.stitch_resume import Contact, Resume
 
 def main():
-    logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
+    log_setup(logging.DEBUG)
     try:
         args = parse_args()
         stitch_letter(args)
