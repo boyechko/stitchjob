@@ -1,8 +1,6 @@
 import argparse
 from pathlib import Path
-import subprocess
 
-import frontmatter
 import pytest
 
 from stitchjob.stitch_letter import *
@@ -31,6 +29,28 @@ def test_stitch_letter_to_tex(test_data_session):
     args = default_args(test_data_session)
     stitch_letter(args)
     assert text_in_tex_file(args, "Documentation Coordinator")
+
+def test_get_contact_from_resume(test_data):
+    args = default_args(test_data)
+    resume = Resume(Path(args.resume))
+    assert isinstance(resume, Resume)
+    assert resume.contact['name'] == "Riley K. Chen"
+
+def test_get_contact_from_unreadable_resume_raises_exception(test_data):
+    import os
+    args = default_args(test_data)
+    resume_path = Path(args.resume)
+    os.chmod(resume_path, 000)
+    with pytest.raises(CannotReadResumeFileError):
+        stitch_letter(args)
+
+def test_get_contact_from_missing_resume_raises_exception(test_data):
+    import os
+    args = default_args(test_data)
+    resume_path = Path(args.resume)
+    os.remove(resume_path)
+    with pytest.raises(CannotReadResumeFileError):
+        stitch_letter(args)
 
 def test_write_tex_raises_exception(test_data):
     args = default_args(test_data)
@@ -74,4 +94,3 @@ def text_in_tex_file(args: argparse.Namespace, text: str) -> bool:
     assert tex_path.exists()
     assert text in tex_path.read_text()
     return True
-

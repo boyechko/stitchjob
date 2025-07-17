@@ -18,14 +18,10 @@ def main():
     try:
         args = parse_args()
         stitch_letter(args)
-    except FileNotFoundError as err:
-        log_error_and_exit(err, "File not found")
-    except PermissionError as err:
-        log_error_and_exit(err, f"Permission denied when writing '{tex_path}'")
-    except ET.ParseError as err:
-        log_error_and_exit(err, f"Cannot parse '{resume_path}'")
-    except SignatureImageNotFound as err:
-        log_error_and_exit(err)
+    except StitchjobException as e:
+        log_error_and_exit(e)
+    except Exception as e:
+        log_error_and_exit(e, "Unhandled error: " + str(e))
 
 def log_error_and_exit(err: Exception, msg: str | None = None) -> None:
     filename = getattr(err, "filename", None)
@@ -66,7 +62,7 @@ def stitch_letter(args: argparse.Namespace) -> None:
     letter = Letter.from_file(input_path)
 
     logging.debug(f"Getting contact information from '{resume_path.name}'")
-    letter.contact = Resume(resume_path).contact
+    letter.contact = get_contact_from_resume(resume_path)
 
     letter.signature_image = determine_signature_image(args, letter)
     if letter.signature_image:
@@ -90,6 +86,16 @@ class Letter:
     def from_file(cls, path: Path) -> "Letter":
         post = frontmatter.loads(path.read_text())
         return cls(metadata=post.metadata, content=post.content)
+
+def get_contact_from_resume(resume_path: Path) -> Contact:
+    try:
+        return Resume(resume_path).contact
+    except ET.ParseError as e:
+        raise CannotReadResumeFileError(resume_path, "Parse error: " + str(e)) from e
+    except FileNotFoundError as e:
+        raise CannotReadResumeFileError(resume_path, "File note found") from e
+    except PermissionError as e:
+        raise CannotReadResumeFileError(resume_path, "Permission denied: " + str(e)) from e
 
 def determine_signature_image(args: argparse.Namespace, letter: Letter) -> Path | None:
     """Return resolved path to signature image or None.
@@ -139,17 +145,24 @@ def render_tex(letter: Letter) -> Path:
 
     return template.render(letter=letter)
 
-def write_tex(tex_path: Path, text: str) -> Path:
-    tex_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(tex_path, 'w') as file:
-        file.write(text)
-    return tex_path
-
 def determine_tex_path(args: argparse.Namespace) -> Path:
     if args.output is None:
         return Path(args.input).with_suffix(".tex")
     else:
         return Path(args.output)
+
+def write_tex(tex_path: Path, text: str) -> Path:
+    try:
+        return _write_tex(tex_path, text)
+    except PermissionError as e:
+        raise CannotWriteToTeXFileError(tex_path, "Permission denied") from e
+
+def _write_tex(tex_path: Path, text: str) -> Path:
+    tex_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(tex_path, 'w') as file:
+        file.write(text)
+    return tex_path
+
 # --- Exceptions --- #
 
 class StitchjobException(Exception):
