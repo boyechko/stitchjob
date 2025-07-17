@@ -2,7 +2,6 @@ import argparse
 from dataclasses import dataclass, field
 import logging
 from pathlib import Path
-import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
@@ -11,7 +10,7 @@ from frontmatter import Post
 from mako.template import Template
 
 from stitchjob.shared import *
-from stitchjob.stitch_resume import Contact, Resume, maybe_compile_pdf, compile_pdf
+from stitchjob.stitch_resume import Contact, Resume
 
 def main():
     logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')

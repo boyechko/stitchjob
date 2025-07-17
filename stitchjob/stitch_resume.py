@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 import re
 import shutil
-import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
@@ -64,34 +63,6 @@ def ensure_latex_class_accessible(tex_path: Path):
     cls_src = files("stitchjob") / "stitched.cls"
     cls_dst = tex_path.parent / "stitched.cls"
     shutil.copy(cls_src, cls_dst)
-
-def maybe_compile_pdf(args: argparse.Namespace, tex_path: Path) -> Path | None:
-    if args.pdf:
-        try:
-            logging.debug("Compiling PDF file...")
-            pdf_path = compile_pdf(tex_path)
-        except subprocess.CalledProcessError as e:
-            logging.error(e.stdout.decode(errors="replace"))
-            logging.error(e.stderr.decode(errors="replace"))
-            sys.exit(1)
-        else:
-            logging.debug(f"PDF file '{pdf_path}' compiled")
-            return pdf_path
-
-def compile_pdf(tex_path: Path) -> Path:
-    resolved_tex_path = tex_path.resolve()
-    ensure_latex_class_accessible(resolved_tex_path)
-    result = subprocess.run(
-        ["pdflatex",
-         "-interaction=nonstopmode",
-         f"-output-directory={resolved_tex_path.parent}",
-         resolved_tex_path.name],
-        check=True,
-        cwd=resolved_tex_path.parent,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    return tex_path.with_suffix(".pdf")
 
 class Resume:
     def __init__(self, xml_file: Path):

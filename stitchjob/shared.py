@@ -1,9 +1,9 @@
+import argparse
+import logging
+from pathlib import Path
 import re
-
-def smarten_tex_quotes(text: str) -> str:
-    text = re.sub(r'"(.+?)"', r"``\1''", text)
-    text = re.sub(r"'(.+?)'", r"`\1'", text)
-    return text
+import subprocess
+import sys
 
 def escape_tex(text: str) -> str:
     special = {
@@ -50,3 +50,35 @@ def escape_tex(text: str) -> str:
     parts.append(after)
 
     return ''.join(parts)
+
+def smarten_tex_quotes(text: str) -> str:
+    text = re.sub(r'"(.+?)"', r"``\1''", text)
+    text = re.sub(r"'(.+?)'", r"`\1'", text)
+    return text
+
+def maybe_compile_pdf(args: argparse.Namespace, tex_path: Path) -> Path | None:
+    if args.pdf:
+        try:
+            logging.debug("Compiling PDF file...")
+            pdf_path = compile_pdf(tex_path)
+        except subprocess.CalledProcessError as e:
+            logging.error(e.stdout.decode(errors="replace"))
+            logging.error(e.stderr.decode(errors="replace"))
+            sys.exit(1)
+        else:
+            logging.debug(f"PDF file '{pdf_path}' compiled")
+            return pdf_path
+
+def compile_pdf(tex_path: Path) -> Path:
+    resolved_tex_path = tex_path.resolve()
+    result = subprocess.run(
+        ["pdflatex",
+         "-interaction=nonstopmode",
+         f"-output-directory={resolved_tex_path.parent}",
+         resolved_tex_path.name],
+        check=True,
+        cwd=resolved_tex_path.parent,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    return tex_path.with_suffix(".pdf")
