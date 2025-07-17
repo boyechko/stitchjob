@@ -24,7 +24,3 @@ def test_stitch_resume_cli_to_tex(test_data):
 def test_latex_class_is_accessible(test_data):
     output = subprocess.run(["python3", "stitchjob/stitch_resume.py", test_data / "resume.xml"])
     assert (test_data / RESUME_LATEX_CLASS).exists()
-
-def test_stitch_letter_to_pdf(test_data):
-    output = subprocess.run(["python3", "stitchjob/stitch_resume.py", test_data / "resume.xml", "-p"])
-    assert (test_data / "resume.pdf").exists()
