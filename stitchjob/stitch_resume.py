@@ -43,9 +43,8 @@ def stitch_resume(args: argparse.Namespace):
     resume = Resume(input_path)
 
     output_path = determine_output_path(args)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     logging.debug(f"Stitching LaTeX file '{output_path}'")
-    output_path.write_text(resume.to_latex() + "\n", encoding="utf-8")
+    write_tex(output_path, resume.to_latex())
 
     logging.debug(f"Ensuring '{RESUME_LATEX_CLASS.name}' is accessible to LaTeX")
     ensure_latex_class_accessible(output_path)
@@ -58,6 +57,14 @@ def determine_output_path(args: argparse.Namespace) -> Path:
         return Path(args.input).with_suffix(".tex")
     else:
         return Path(args.output)
+
+def write_tex(tex_path: Path, text: str) -> bool:
+    try:
+        tex_path.parent.mkdir(parents=True, exist_ok=True)
+        tex_path.write_text(text, encoding="utf-8")
+        return True
+    except PermissionError as e:
+        raise CannotWriteToTeXFileError(tex_path, "Permission denied") from e
 
 def ensure_latex_class_accessible(tex_path: Path):
     """Ensure that 'stitched.cls' is accessible in TeX file's directory."""
