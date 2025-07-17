@@ -72,7 +72,7 @@ def stitch_letter(args: argparse.Namespace) -> None:
     if letter.signature_image:
         logging.debug(f"Using signature image '{letter.signature_image.name}'")
 
-    text = stitch_tex(letter)
+    text = render_tex(letter)
     tex_path = determine_tex_path(args)
     logging.debug(f"Writing LaTeX file '{tex_path}'")
     write_tex(tex_path, text)
@@ -135,7 +135,7 @@ class SignatureImageNotFound(Exception):
         self.path = path
         super().__init__(f"Signature image not found: '{path}'")
 
-def stitch_tex(letter: Letter) -> Path:
+def render_tex(letter: Letter) -> Path:
     mako_path = Path(__file__).parent / "letter.mako"
     template = Template(filename=str(mako_path))
 
