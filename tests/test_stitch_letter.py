@@ -5,8 +5,7 @@ import subprocess
 import frontmatter
 import pytest
 
-from stitchjob.stitch_letter import Letter
-from stitchjob.stitch_letter import determine_signature_image, SignatureImageNotFound
+from stitchjob.stitch_letter import *
 
 def test_example_letter_parsed_correctly(test_data_session, tmp_path):
     letter = Letter.from_file(test_data_session / "letter.md")
@@ -20,47 +19,52 @@ def test_letter_without_metadata(tmp_path):
     assert len(letter.metadata.items()) == 0
     assert "Just body content." in letter.content
 
-def test_signature_image_not_found(test_data_session, tmp_path):
-    args = argparse.Namespace(
-        input=test_data_session / "letter.md",
-        signature=True,
-        signature_image="foobar.png"
-    )
-    letter = frontmatter.Post(content="")
+def test_signature_image_not_found(test_data_session):
+    args = default_args(test_data_session)
+    args.signature = True
+    args.signature_image = "foobar.png"
     assert not Path("foobar.png").exists()
     with pytest.raises(SignatureImageNotFound):
-        determine_signature_image(args, letter)
+        stitch_letter(args)
 
 def test_stitch_letter_to_tex(test_data_session):
-    output = subprocess.run(["python3", "stitchjob/stitch_letter.py",
-                             test_data_session / "letter.md",
-                             "-r", test_data_session / "resume.xml"])
-    tex_path = test_data_session / "letter.tex"
-    assert tex_path.exists()
-    assert "Documentation Coordinator" in tex_path.read_text()
+    args = default_args(test_data_session)
+    stitch_letter(args)
+    assert text_in_tex_file(args, "Documentation Coordinator")
 
-def test_stitch_letter_to_pdf(test_data_session):
-    output = subprocess.run(["python3", "stitchjob/stitch_letter.py",
-                             test_data_session / "letter.md",
-                             "-r", test_data_session / "resume.xml",
-                             "-p"])
-    assert (test_data_session / "letter.pdf").exists()
+def test_stitch_letter_signature_image_from_cli(test_data_session):
+    args = default_args(test_data_session)
+    args.signature = True
+    stitch_letter(args)
+    assert text_in_tex_file(args, "\\includegraphics[height=2em]{signature.png}")
 
-def test_stitch_letter_signature_image(test_data_session):
-    output = subprocess.run(["python3", "stitchjob/stitch_letter.py",
-                             test_data_session / "letter.md",
-                            "-r", test_data_session / "resume.xml",
-                            "-s", "-S", test_data_session / "signature.png"])
-    tex_path = test_data_session / "letter.tex"
-    assert tex_path.exists()
-    assert "\\includegraphics[height=2em]{signature.png}" in tex_path.read_text()
-
-def test_stitch_letter_with_metadata_signature_image(test_data):
+def test_stitch_letter_signature_image_from_metadata(test_data):
     letter_path = test_data / "with_signature.md"
-    letter_path.write_text("---\nsignature_image: signature.png\n---\nBody.\n")
+    letter_path.write_text("---\nsignature_image: mysig.png\n---\nBody.\n")
+    (test_data / "mysig.png").touch()
+    args = default_args(test_data)
+    args.input = letter_path
+    stitch_letter(args)
+    assert text_in_tex_file(args, "\\includegraphics[height=2em]{mysig.png}")
 
-    output = subprocess.run(["python3", "stitchjob/stitch_letter.py", letter_path, "-s"])
+# --- Helper Functions --- #
 
-    tex_path = letter_path.with_suffix(".tex")
+def default_args(dir: Path) -> argparse.Namespace:
+    if not dir.is_dir():
+        dir = dir.parent
+    args = argparse.Namespace(
+        input = dir / "letter.md",
+        resume = dir / "resume.xml",
+        signature = False,
+        signature_image = dir / "signature.png",
+        output = None,
+        pdf = False
+    )
+    return args
+
+def text_in_tex_file(args: argparse.Namespace, text: str) -> bool:
+    tex_path = determine_tex_path(args)
     assert tex_path.exists()
-    assert "\\includegraphics[height=2em]{signature.png}" in tex_path.read_text()
+    assert text in tex_path.read_text()
+    return True
+
