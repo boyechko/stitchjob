@@ -15,3 +15,6 @@ where = ["."]
 
 [tool.setuptools.package-data]
 "stitchjob" = ["*.cls", "*.mako"]
+
+[project.scripts]
+stitch = "stitchjob.stitch:main"

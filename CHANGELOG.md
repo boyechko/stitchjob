@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add unified CLI subcommand interface `stitch` rather than using individual scripts.
 - Add `stitch_letter.py` to generate cover letters from Markdown input.
 - Add command-line options `-p/--pdf`, `-s`, and `-S` for compiling PDFs and
   including signature images in letters.
