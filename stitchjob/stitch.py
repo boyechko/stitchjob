@@ -6,9 +6,10 @@ from stitchjob.stitch_letter import stitch_letter
 from stitchjob.shared import *
 
 def main(argv=None):
-    log_setup(logging.DEBUG)
     try:
         args = parse_args(argv)
+        log_level = logging.DEBUG if args.verbose else logging.INFO
+        log_setup(log_level)
 
         if args.command == "resume":
             stitch_resume(args)
@@ -23,6 +24,8 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Stitchjob: Tailored resume and letter builder"
     )
+    parser.add_argument("-v", "--verbose", action="store_true",
+                        help="Enable verbose logging")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Resume subcommand
@@ -52,6 +55,25 @@ def parse_args(argv=None) -> argparse.Namespace:
                                help="Compile the .tex file to PDF using pdflatex")
 
     return parser.parse_args(argv)
+
+def log_setup(level):
+    logging.basicConfig(
+        level=level,
+        format='%(levelname)s: %(message)s',
+        stream=sys.stdout,
+        force=True)     # <- override prior config (Python 3.8+)
+
+def log_error_and_exit(err: Exception, msg: str | None = None) -> None:
+    filename = getattr(err, "filename", None)
+
+    if msg and filename:
+        logging.error(msg + f": {filename}")
+    elif msg:
+        logging.error(msg)
+    else:
+        logging.error(str(err))
+
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()

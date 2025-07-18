@@ -28,8 +28,6 @@ def test_stitch_resume_compiles_pdf(test_data, capsys):
     assert expected_pdf.exists()
 
 def test_stitch_resume_prints_debug_messages(test_data, capsys):
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
-    main(["resume", str(test_data / "resume.xml")])
+    main(["--verbose", "resume", str(test_data / "resume.xml")])
     out, _ = capsys.readouterr()
-    assert "DEBUG:" in out
+    assert "DEBUG: Parsing resume XML file" in out
