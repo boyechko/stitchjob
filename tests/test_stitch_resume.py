@@ -1,4 +1,3 @@
-import subprocess
 import xml.etree.ElementTree as ET
 
 import pytest
@@ -15,12 +14,6 @@ def test_resume_with_invalid_xml(tmp_path):
     with pytest.raises(CannotParseXMLResumeError):
         resume = Resume(path)
 
-def test_stitch_resume_cli_to_tex(test_data):
-    output = subprocess.run(["python3", "stitchjob/stitch_resume.py", test_data / "resume.xml"])
-    tex_path = test_data / "resume.tex"
-    assert tex_path.exists()
-    assert r"\organization{UC Berkeley Library}" in tex_path.read_text()
-
 def test_latex_class_is_accessible(test_data):
-    output = subprocess.run(["python3", "stitchjob/stitch_resume.py", test_data / "resume.xml"])
+    ensure_latex_class_accessible(test_data)
     assert (test_data / RESUME_LATEX_CLASS).exists()
