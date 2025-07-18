@@ -12,7 +12,7 @@ template](https://github.com/patrick-benito/pats-resume).
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.8+
   - frontmatter 3.08+
   - Mako 1.3.10+
 - LaTeX installation with `pdflatex`
@@ -41,7 +41,8 @@ template](https://github.com/patrick-benito/pats-resume).
     you want. Similarly, for arbitrarily named letter file `letter/myletter.md`,
     you would use make targets of `letter/myletter.tex` and `letter/myletter.pdf`.
 
-    For more control, execute `stitchjob/stitch_resume.py` and `stitchjob/stitch_letter.py` directly.
+    For more control, execute `stitch` (or `python stitchjob/stitch.py`)
+    directly, for which see below.
 
 5. Review the resulting PDFs, make necessary adjustments, and recompile (step
    #4) as needed. Since both the Python script and the generated LaTeX files are
@@ -101,6 +102,39 @@ as follows:
 - `signature_image`: Path to the image of your signature. It will be rendered to
   fit within two lines of text (`2em` in TeX).
 
+## Command Line Interface
+
+If the Python project is installed with `pip install -e .`, it will make the
+`stitch` command available on the command line:
+
+```bash
+stitch resume resume/example.xml --pdf
+stitch letter letter/example.md --signature --pdf
+```
+
+Otherwise, you can invoke the script directly:
+
+```bash
+python stitchjob/stitch.py resume resume/example.xml --pdf
+```
+
+### Available Subcommands
+
+- `resume`: Converts a trimmed XML resume into a LaTeX `.tex` file, and
+  optionally compiles it to PDF.
+- `letter`: Converts a Markdown-with-YAML-header letter file into LaTeX, pulling
+  in contact details from a companion resume file.
+
+### Common Flags
+
+- `--pdf`: Compile the generated LaTeX file to PDF using `pdflatex`.
+- `--verbose`: Show detailed debug output.
+- `-o`, `--output`: Manually specify output `.tex` filename (letters only).
+- `--signature`: Include a graphic signature image in the cover letter.
+- `--signature-image`: Path to the image used as signature (default: `letter/signature.png`).
+- `--resume`: Path to XML resume to use for pulling contact info into the letter
+  (default: `resume/resume.xml`).
+
 ## Directory Structure
 
 ```
@@ -127,9 +161,10 @@ stitchjob/
 ├── stitchjob/                  # Python package
 │   ├── __init__.py             # Package marker
 │   ├── letter.mako             # LaTeX + Mako template for letters
-│   ├── shared.py               # Functions and exceptions used by both scripts
-│   ├── stitch_resume.py        # Script to convert XML to LaTeX/PDF
-│   ├── stitch_letter.py        # Script to convert MD to LaTeX/PDF
+│   ├── shared.py               # Functions and exceptions used by all modules
+│   ├── stitch.py               # Unified CLI
+│   ├── stitch_resume.py        # Code to convert XML to LaTeX/PDF
+│   ├── stitch_letter.py        # Code to convert MD to LaTeX/PDF
 │   └── stitched.cls            # LaTeX resume class for Stitchjob resumes
 └── tests/                      # Test suite
     ├── test_shared.py
