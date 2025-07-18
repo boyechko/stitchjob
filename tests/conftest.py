@@ -28,6 +28,28 @@ def test_data(tmp_path):
             shutil.copy2(item, target)
     return tmp_path
 
+@pytest.fixture
+def isolated_project(tmp_path):
+    """Copy the minimal working project subset to a temp directory."""
+    root = Path(__file__).parent.parent  # assume tests/ is one level down
+    paths_to_copy = [
+        "Makefile",
+        "stitchjob",
+        "letter/example.md",
+        "resume/example.xml"
+    ]
+
+    for rel_path in paths_to_copy:
+        src = root / rel_path
+        dst = tmp_path / rel_path
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        if src.is_dir():
+            shutil.copytree(src, dst)
+        else:
+            shutil.copy2(src, dst)
+
+    return tmp_path
+
 def pytest_addoption(parser):
     parser.addoption(
         "--runslow", action="store_true", default=False, help="Run tests marked as slow"

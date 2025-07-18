@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import subprocess
 
 import pytest
@@ -22,6 +23,14 @@ def test_stitch_letter_cli_signature_image(test_data_session):
     assert tex_path.exists()
     assert "\\includegraphics[height=2em]{signature.png}" in tex_path.read_text()
 
+@pytest.mark.slow
+def test_make_example_letter_pdf(isolated_project):
+    os.chdir(isolated_project)
+    target = "letter/example.pdf"
+    result = subprocess.run(["make", "RESUME_NAME=example", target], capture_output=True, text=True)
+    assert result.returncode == 0
+    assert (isolated_project / target).exists()
+
 # --- Resume --- #
 
 def test_stitch_resume_cli_to_tex(test_data):
@@ -34,3 +43,12 @@ def test_stitch_resume_cli_to_tex(test_data):
 def test_stitch_resume_cli_pdf(test_data):
     output = subprocess.run(["stitch", "resume", test_data / "resume.xml", "-p"])
     assert (test_data / "resume.pdf").exists()
+
+@pytest.mark.slow
+def test_make_example_resume_pdf(isolated_project):
+    os.chdir(isolated_project)
+    target = "resume/example.pdf"
+    result = subprocess.run(["make", target], capture_output=True, text=True)
+    assert result.returncode == 0
+    assert (isolated_project / target).exists()
+
