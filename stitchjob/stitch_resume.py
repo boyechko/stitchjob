@@ -22,7 +22,14 @@ def stitch_resume(args: argparse.Namespace):
     logging.debug(f"Ensuring '{RESUME_LATEX_CLASS.name}' is accessible to LaTeX")
     ensure_latex_class_accessible(output_path)
 
-    maybe_compile_pdf(args, output_path)
+    pdf_path = None
+    if args.pdf or args.openpdf:
+        pdf_path = maybe_compile_pdf(output_path)
+
+    if args.openpdf and pdf_path:
+        maybe_open_pdf(pdf_path)
+    elif args.openpdf:
+        logging.error("PDF file not generated, cannot open")
 
 def write_tex(tex_path: Path, text: str) -> bool:
     try:

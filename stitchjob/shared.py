@@ -56,18 +56,17 @@ def smarten_tex_quotes(text: str) -> str:
     text = re.sub(r"'(.+?)'", r"`\1'", text)
     return text
 
-def maybe_compile_pdf(args: argparse.Namespace, tex_path: Path) -> Path | None:
-    if args.pdf:
-        try:
-            logging.debug("Compiling PDF file...")
-            pdf_path = compile_pdf(tex_path)
-        except subprocess.CalledProcessError as e:
-            logging.error(e.stdout.decode(errors="replace"))
-            logging.error(e.stderr.decode(errors="replace"))
-            sys.exit(1)
-        else:
-            logging.debug(f"PDF file '{pdf_path}' compiled")
-            return pdf_path
+def maybe_compile_pdf(tex_path: Path) -> Path | None:
+    try:
+        logging.debug("Compiling PDF file...")
+        pdf_path = compile_pdf(tex_path)
+    except subprocess.CalledProcessError as e:
+        logging.error(e.stdout.decode(errors="replace"))
+        logging.error(e.stderr.decode(errors="replace"))
+        sys.exit(1)
+    else:
+        logging.debug(f"PDF file '{pdf_path}' compiled")
+        return pdf_path
 
 def compile_pdf(tex_path: Path) -> Path:
     resolved_tex_path = tex_path.resolve()
@@ -82,6 +81,30 @@ def compile_pdf(tex_path: Path) -> Path:
         stderr=subprocess.PIPE,
     )
     return tex_path.with_suffix(".pdf")
+
+def maybe_open_pdf(pdf_path: Path) -> bool | None:
+    try:
+        logging.debug("Opening PDF file...")
+        result = open_pdf(pdf_path)
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Cannot open the PDF: {str(e)}")
+        sys.exit(1)
+    else:
+        logging.debug(f"Opened PDF file")
+        return result
+
+def open_pdf(pdf_path: Path) -> bool:
+    result = subprocess.run(
+        ["open",
+         pdf_path],
+         check=True,
+         cwd=pdf_path.parent,
+         stdout=subprocess.PIPE,
+         stderr=subprocess.PIPE
+    )
+    if result.returncode != 0:
+        return False
+    return True
 
 # --- Exceptions --- #
 

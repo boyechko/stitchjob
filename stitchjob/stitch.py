@@ -34,6 +34,8 @@ def parse_args(argv=None) -> argparse.Namespace:
                                help="Input XML file (default: resume/resume.xml)")
     resume_parser.add_argument("-p", "--pdf", action="store_true",
                                help="Compile the .tex file to PDF using pdflatex")
+    resume_parser.add_argument("-P", "--openpdf", action="store_true",
+                               help="Compile the .tex file to PDF and open it")
 
     # Letter subcommand
     letter_parser = subparsers.add_parser("letter",
@@ -53,6 +55,8 @@ def parse_args(argv=None) -> argparse.Namespace:
                                help="Output LaTeX file (default: <input>.tex)")
     letter_parser.add_argument("-p", "--pdf", action="store_true",
                                help="Compile the .tex file to PDF using pdflatex")
+    letter_parser.add_argument("-P", "--openpdf", action="store_true",
+                               help="Compile the .tex file to PDF and open it")
 
     return parser.parse_args(argv)
 

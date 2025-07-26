@@ -31,7 +31,14 @@ def stitch_letter(args: argparse.Namespace) -> None:
     logging.debug(f"Writing LaTeX file '{tex_path}'")
     write_tex(tex_path, text)
 
-    pdf_path = maybe_compile_pdf(args, tex_path)
+    pdf_path = None
+    if args.pdf or args.openpdf:
+        pdf_path = maybe_compile_pdf(tex_path)
+
+    if args.openpdf and pdf_path:
+        maybe_open_pdf(pdf_path)
+    elif args.openpdf:
+        logging.error("PDF file not generated, cannot open")
 
 @dataclass
 class Letter:
