@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Visibly mark links in `stitched.cls`.
 - Ensure `stitched.cls` is findable by `pdflatex`.
 - Correct rendering of small caps section headings in resume.
 - Strip protocol (`https://`) from website contact field.

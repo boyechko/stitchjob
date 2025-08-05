@@ -1,4 +1,4 @@
-% Tangled from Crispy Memory on [2025-07-09 Wed 17:49]
+% Tangled from Crispy Memory on [2025-08-05 Tue 15:02]
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{stitched}[2025/06/29 Stitchjob Resume Class]
 
@@ -98,29 +98,34 @@
 
 % Setter command
 \newcommand{\setprofile}[1]{\setkeys{profile}{#1}}
+
+% Commands for typesetting the profile
+\newcommand{\bluehref}[2]{\href{#1}{\textcolor{blue}{\underline{\smash{#2}}}}}
 \newcommand{\iconify}[2]{\enspace\mbox{#1\enspace#2}}
-\newcommand{\linkedin}[1]{\href{https://www.linkedin.com/in/#1}{#1}}
-\newcommand{\github}[1]{\href{https://www.github.common/#1}{#1}}
-\newcommand{\website}[0]{\href{https://\profile@website}{\profile@website}}
+
+\newcommand{\emaillink}[1]{\bluehref{mailto:#1}{#1}}
+\newcommand{\linkedinlink}[1]{\bluehref{https://www.linkedin.com/in/#1}{#1}}
+\newcommand{\githublink}[1]{\bluehref{https://www.github.com/#1}{#1}}
+\newcommand{\websitelink}[1]{\bluehref{https://#1}{#1}}
 
 \newcommand{\printprofile}{%
   \begin{center}
     \heading{\profile@name}\\
     \smallskip
-    \iconify{\faEnvelope}{\href{mailto:\profile@email}{\profile@email}}%
+    \iconify{\faEnvelope}{\emaillink{\profile@email}}%
     \iconify{\faPhone}{\profile@phone}%
     % alternative icons: \faHome, \faMap, \faMapO, \faMapPin, \faMapPin
     \iconify{\faLocationArrow}{\profile@location}%
     \linebreak[0]%
     \ifdefempty{\profile@linkedin}{}{%
-      \iconify{\faLinkedinSquare}{\linkedin{\profile@linkedin}}%
+      \iconify{\faLinkedinSquare}{\linkedinlink{\profile@linkedin}}%
     }%
     \ifdefempty{\profile@github}{}{%
-      \iconify{\faGithub}{\github{\profile@github}}%
+      \iconify{\faGithub}{\githublink{\profile@github}}%
     }%
     % alternative icons: \faMousePointer, \faBookmarkO
     \ifdefempty{\profile@website}{}{%
-      \iconify{\faBookmark}{\website}%
+      \iconify{\faBookmark}{\websitelink{\profile@website}}%
     }%
   \end{center}
   \raggedright
