@@ -153,7 +153,7 @@ class Experience:
         }
         output += "\\begin{itemize}\n"
         for item in self.items:
-            output += f"  \\item {escape_tex(item)}\n"
+            output += f"  \\item {smarten_tex_quotes(escape_tex(item))}\n"
         output += "\\end{itemize}\n"
         return output
 
