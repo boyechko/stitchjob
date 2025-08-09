@@ -19,8 +19,8 @@ def stitch_resume(args: argparse.Namespace):
     logging.debug(f"Stitching LaTeX file '{output_path}'")
     write_tex(output_path, resume.to_latex())
 
-    logging.debug(f"Ensuring '{RESUME_LATEX_CLASS.name}' is accessible to LaTeX")
-    ensure_latex_class_accessible(output_path)
+    logging.debug(f"Ensuring '{RESUME_LATEX_CLASS.name}' is available")
+    ensure_latex_class_available(output_path)
 
     pdf_path = None
     if args.pdf or args.openpdf:
@@ -39,11 +39,16 @@ def write_tex(tex_path: Path, text: str) -> bool:
     except PermissionError as e:
         raise CannotWriteToTeXFileError(tex_path, "Permission denied") from e
 
-def ensure_latex_class_accessible(tex_path: Path):
-    """Ensure that 'stitched.cls' is accessible in TeX file's directory."""
+def ensure_latex_class_available(tex_path: Path):
+    """Ensure that 'stitched.cls' is available in TeX file's directory."""
     cls_src = files("stitchjob") / "stitched.cls"
     cls_dst = tex_path.parent / "stitched.cls"
-    shutil.copy(cls_src, cls_dst)
+    try:
+        shutil.copy(cls_src, cls_dst)
+    except shutil.SameFileError:
+        # If there is already a symlink to stitched.cls in tex_path, don't need
+        # to copy the file.
+        pass
 
 class Resume:
     def __init__(self, xml_file: Path):
