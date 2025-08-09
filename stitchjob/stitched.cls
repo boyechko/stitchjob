@@ -73,7 +73,19 @@
 \RequirePackage{etoolbox}
 
 \newcommand{\heading}[1]{{\Huge\color{black}\textbf{#1}}}
-\newcommand{\degree}[5]{\textbf{#1} \textmd{(#2), #3, #4 \hfill \textcolor{customblue}{#5}}\\}
+
+% Education
+
+\newenvironment{education}{%
+  \begin{enumerate}[label={},left=0pt .. 0pt,itemindent=0pt,nosep]%
+}{%
+  \end{enumerate}
+}
+
+% \degree{degree}{major}{institution}{location}
+\newcommand{\degree}[5]{%
+  \item {\textbf{#1} \textmd{(#2), #3, #4 \hfill \textcolor{customblue}{#5}}\\}%
+}
 
 % Syntax: \experience{dates}{role}{organization}[location]
 \NewDocumentCommand{\experience}{ m m m o }{%
