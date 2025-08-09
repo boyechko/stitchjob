@@ -1,4 +1,3 @@
-% Tangled from Crispy Memory on [2025-08-05 Tue 15:02]
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{stitched}[2025/06/29 Stitchjob Resume Class]
 
@@ -44,14 +43,11 @@
 \RequirePackage{fontawesome}
 
 \RequirePackage{titlesec}
-%\titleformat{\section}{\large\color{customblue}\bfseries}{}{0em}{}
 \titleformat*{\section}{\large\color{customblue}\scshape}
 \titlespacing{\section}{0pt}{\smallskipamount}{\smallskipamount}
 
 \titleformat*{\subsection}{\normalsize\bfseries}
 \titleformat*{\subsubsection}{\normalsize\itshape}
-\titleformat*{\paragraph}{\normalsize}
-\titleformat*{\subparagraph}{\normalsize}
 
 \newcommand{\heading}[1]{{\Huge\color{black}\textbf{#1}}}
 \newcommand{\datedsubsection}[2]{\subsection*{#1 \hfill \textmd{\textcolor{customblue}{#2}}}}
