@@ -10,6 +10,10 @@
 \RequirePackage[hidelinks]{hyperref} % Hide link borders
 \RequirePackage{graphicx}
 
+%
+% Page Layout
+%
+
 \pagestyle{empty}
 
 \RequirePackage{geometry}
@@ -22,18 +26,28 @@
           bottom=\margin,
           footskip=0.25in}
 
+%
+% Vertical Spacing
+%
+
 \RequirePackage{parskip}
 
 \setlength{\smallskipamount}{8pt plus 3pt minus 3pt}
 \setlength{\medskipamount}{12pt plus 2pt minus 2pt}
 \setlength{\bigskipamount}{24pt plus 8pt minus 8pt}
 
+% Lists
+
 \RequirePackage{enumitem}
 \setlist[itemize]{noitemsep,leftmargin=5mm}
+
+% Colors
 
 \RequirePackage{xcolor}
 \definecolor{customblue}{HTML}{3E64FF}
 \definecolor{lightgray}{gray}{0.01}
+
+% Fonts
 
 \RequirePackage[T1]{fontenc}
 \RequirePackage{lmodern}
@@ -42,6 +56,8 @@
 %\renewcommand\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 \RequirePackage{fontawesome}
 
+% Section Styling
+
 \RequirePackage{titlesec}
 \titleformat*{\section}{\large\color{customblue}\scshape}
 \titlespacing{\section}{0pt}{\smallskipamount}{\smallskipamount}
@@ -49,12 +65,17 @@
 \titleformat*{\subsection}{\normalsize\bfseries}
 \titleformat*{\subsubsection}{\normalsize\itshape}
 
+%
+% New Commands
+%
+
+\RequirePackage{xparse}
+\RequirePackage{etoolbox}
+
 \newcommand{\heading}[1]{{\Huge\color{black}\textbf{#1}}}
 \newcommand{\datedsubsection}[2]{\subsection*{#1 \hfill \textmd{\textcolor{customblue}{#2}}}}
 \newcommand{\degree}[5]{\textbf{#1} \textmd{(#2), #3, #4 \hfill \textcolor{customblue}{#5}}\\}
 
-\RequirePackage{xparse}
-\RequirePackage{etoolbox}
 \NewDocumentCommand{\organization}{ m o o }{%
    \textsl{#1%
      \IfValueT{#2}{\IfBlankTF{#2}{}{ (#2)}}%
@@ -70,6 +91,10 @@
     \end{itemize}%
   \end{multicols}%
 }
+
+%
+% Candidate Profile
+%
 
 \RequirePackage{keyval}
 \RequirePackage{etoolbox}       % for \ifstrempty
