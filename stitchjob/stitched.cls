@@ -73,15 +73,17 @@
 \RequirePackage{etoolbox}
 
 \newcommand{\heading}[1]{{\Huge\color{black}\textbf{#1}}}
-\newcommand{\datedsubsection}[2]{\subsection*{#1 \hfill \textmd{\textcolor{customblue}{#2}}}}
 \newcommand{\degree}[5]{\textbf{#1} \textmd{(#2), #3, #4 \hfill \textcolor{customblue}{#5}}\\}
 
-\NewDocumentCommand{\organization}{ m o o }{%
-   \textsl{#1%
-     \IfValueT{#2}{\IfBlankTF{#2}{}{ (#2)}}%
-     \IfValueT{#3}{\IfBlankTF{#3}{}{\\#3}}%
-   }%
+% Syntax: \experience{dates}{role}{organization}[location]
+\NewDocumentCommand{\experience}{ m m m o }{%
+  \subsection*{#2 \hfill \textmd{\textcolor{customblue}{#1}}%
+    \\%
+    \textmd{\textsl{#3\IfValueT{#4}{\IfBlankTF{#4}{}{ (#4)}}}}%
+  }
 }
+
+\newcommand{\blurb}[1]{\textit{#1}}
 
 \RequirePackage{multicol}
 \newenvironment{skills}{%
