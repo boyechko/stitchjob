@@ -50,7 +50,7 @@ class Resume:
         try:
             root = ET.parse(xml_file).getroot()
             self.contact = Contact(root)
-            self.sections = [Section(sec_el) for sec_el in root.findall("section")]
+            self.sections = [Section.create(sec_el) for sec_el in root.findall("section")]
         except ET.ParseError as e:
             raise CannotParseXMLResumeError(xml_file, str(e)) from e
         except FileNotFoundError as e:
@@ -101,8 +101,15 @@ class Contact:
         return output
 
 class Section:
+    @classmethod
+    def create(cls, element: ET.Element):
+        section_type = element.attrib.get("type")
+        if section_type == "education":
+            return EducationSection(element)
+        return cls(element)
+
     def __str__(self):
-        return f"Section({self.type=}, {self.heading=}, {self.children.count()})"
+        return f"Section({self.type=}, {self.heading=}, {len(self.children)})"
 
     def __init__(self, element: ET.Element):
         self.type = element.attrib.get("type")
@@ -121,12 +128,20 @@ class Section:
             else:
                 raise Exception(f"Don't know how to handle `{child.tag}' child")
             self.children.append(obj)
-        #self.children = [Experience(exp_el) for exp_el in element.findall("experience")]
 
     def to_latex(self) -> str:
         output = f"\\section*{{{escape_tex(self.heading)}}}\n"
         for child in self.children:
             output += child.to_latex() + "\n"
+        return output
+
+class EducationSection(Section):
+    def to_latex(self) -> str:
+        output = f"\\section*{{{escape_tex(self.heading)}}}\n"
+        output += "\\begin{education}\n"
+        for child in self.children:
+            output += child.to_latex() + "\n"
+        output += "\\end{education}\n"
         return output
 
 class Experience:
