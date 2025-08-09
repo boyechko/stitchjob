@@ -141,16 +141,16 @@ class Experience:
 
     def to_latex(self) -> str:
         output = r"""
-        \datedsubsection{%(title)s}{%(begin)s -- %(end)s}
-        \organization{%(organization)s}[%(location)s][%(blurb)s]
+        \experience{%(begin)s -- %(end)s}{%(title)s}{%(organization)s}[%(location)s]
         """ % {
             'title': escape_tex(self.title),
             'begin': escape_tex(self.begin),
             'end': escape_tex(self.end),
             'organization': escape_tex(self.organization),
-            'location': escape_tex(self.location),
-            'blurb': smarten_tex_quotes(escape_tex(self.blurb))
+            'location': escape_tex(self.location)
         }
+        if self.blurb:
+            output += f"\\blurb{{{smarten_tex_quotes(escape_tex(self.blurb))}}}\n"
         output += "\\begin{itemize}\n"
         for item in self.items:
             output += f"  \\item {smarten_tex_quotes(escape_tex(item))}\n"
