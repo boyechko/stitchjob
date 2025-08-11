@@ -66,7 +66,7 @@ def maybe_compile_pdf(tex_path: Path) -> Path | None:
         sys.exit(1)
     else:
         logging.debug(f"PDF file '{pdf_path}' compiled")
-        return pdf_path
+        return pdf_path.resolve()
 
 def compile_pdf(tex_path: Path) -> Path:
     resolved_tex_path = tex_path.resolve()
