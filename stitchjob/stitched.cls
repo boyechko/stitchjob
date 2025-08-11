@@ -44,7 +44,7 @@
 % Colors
 
 \RequirePackage{xcolor}
-\definecolor{customblue}{HTML}{3E64FF}
+\definecolor{customblue}{HTML}{3869FF}
 \definecolor{lightgray}{gray}{0.01}
 
 % Fonts
