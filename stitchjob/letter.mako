@@ -1,4 +1,3 @@
-%% -*- mode: latex; -*-
 \documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
@@ -17,6 +16,13 @@
 \graphicspath{ {./} }
 
 \newcommand{\email}{${letter.contact['email']}}
+
+\hypersetup{%
+  pdfauthor=${letter.contact['name']},%
+  pdftitle={Cover Letter - ${letter.contact['name']}},%
+  pdfdisplaydoctitle=true,%
+  pdfcreator=Stitchjob%
+}
 
 \begin{document}
 \pagenumbering{gobble}

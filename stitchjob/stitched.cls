@@ -132,7 +132,15 @@
 \def\profile@website{}
 
 % Setter command
-\newcommand{\setprofile}[1]{\setkeys{profile}{#1}}
+\newcommand{\setprofile}[1]{%
+  \setkeys{profile}{#1}%
+  \hypersetup{%
+    pdfauthor=\profile@name,%
+    pdftitle={Resume - \profile@name},%
+    pdfdisplaydoctitle=true,%
+    pdfcreator=Stitchjob%
+  }
+}
 
 % Commands for typesetting the profile
 \newcommand{\bluehref}[2]{\href{#1}{\textcolor{blue}{\underline{\smash{#2}}}}}
