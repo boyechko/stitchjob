@@ -163,10 +163,10 @@
       \iconify{\faBookmark}{\websitelink{\profile@website}}%
     }%
   \end{center}
-  \raggedright
 }
 
 \AtBeginDocument{%
+  \pdfinterwordspaceon
   \printprofile
   \raggedright
 }
