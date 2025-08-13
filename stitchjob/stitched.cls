@@ -58,12 +58,22 @@
 
 % Section Styling
 
-\RequirePackage{titlesec}
-\titleformat*{\section}{\large\color{customblue}\scshape}
-\titlespacing{\section}{0pt}{\smallskipamount}{\smallskipamount}
+\setcounter{secnumdepth}{0}
 
-\titleformat*{\subsection}{\normalsize\bfseries}
-\titleformat*{\subsubsection}{\normalsize\itshape}
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+  {-1ex \@plus -.5ex \@minus -.2ex}%      % Space before
+  {.5ex \@plus .2ex}%                     % Space after
+  {\normalfont\large\color{customblue}\scshape}}  % Format
+
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+  {-0.5ex \@plus -0.2ex \@minus -.2ex}%
+  {.2ex \@plus .1ex}%
+  {\normalfont\normalsize\bfseries}}
+
+\renewcommand\subsubsection{\@startsection{subsubsection}{2}{\z@}%
+  {-.2ex \@plus -.1ex \@minus -.1ex}%
+  {.1ex \@plus .1ex}%
+  {\normalfont\normalsize\slshape}}
 
 %
 % New Commands
