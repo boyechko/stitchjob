@@ -36,11 +36,6 @@
 \setlength{\medskipamount}{12pt plus 2pt minus 2pt}
 \setlength{\bigskipamount}{24pt plus 8pt minus 8pt}
 
-% Lists
-
-\RequirePackage{enumitem}
-\setlist[itemize]{noitemsep,leftmargin=5mm}
-
 % Colors
 
 \RequirePackage{xcolor}
@@ -106,6 +101,14 @@
     \\%
     \textmd{\textsl{#3\IfValueT{#4}{\IfBlankTF{#4}{}{ (#4)}}}}%
   }
+\newenvironment{duties}{%
+  \vspace{1ex}
+  \setlength{\itemsep}{0pt}
+  \setlength{\parskip}{0pt}
+  \setlength{\leftmargini}{1.5em}
+  \begin{itemize}%
+}{%
+  \end{itemize}%
 }
 
 \newcommand{\blurb}[1]{\textit{#1}}
@@ -113,6 +116,9 @@
 \RequirePackage{multicol}
 \newenvironment{skills}{%
   \begin{multicols}{2}%
+    \setlength{\itemsep}{0pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\leftmargini}{1.5em}
     \begin{itemize}%
 }{%
     \end{itemize}%

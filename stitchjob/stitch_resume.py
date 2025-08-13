@@ -171,10 +171,10 @@ class Experience:
         }
         if self.blurb:
             output += f"\\blurb{{{smarten_tex_quotes(escape_tex(self.blurb))}}}\n"
-        output += "\\begin{itemize}\n"
+        output += "\\begin{duties}\n"
         for item in self.items:
             output += f"  \\item {smarten_tex_quotes(escape_tex(item))}\n"
-        output += "\\end{itemize}\n"
+        output += "\\end{duties}\n"
         return output
 
 class Degree:
