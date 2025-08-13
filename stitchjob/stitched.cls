@@ -72,8 +72,6 @@
 \RequirePackage{xparse}
 \RequirePackage{etoolbox}
 
-\newcommand{\heading}[1]{{\Huge\color{black}\textbf{#1}}}
-
 % Education
 
 \newenvironment{education}{%
@@ -134,6 +132,8 @@
 % Setter command
 \newcommand{\setprofile}[1]{%
   \setkeys{profile}{#1}%
+  \title{\profile@name}%
+  \author{\profile@name}%
   \hypersetup{%
     pdfauthor=\profile@name,%
     pdftitle={Resume - \profile@name},%
@@ -151,10 +151,12 @@
 \newcommand{\githublink}[1]{\bluehref{https://www.github.com/#1}{#1}}
 \newcommand{\websitelink}[1]{\bluehref{https://#1}{#1}}
 
-\newcommand{\printprofile}{%
-  \begin{center}
-    \heading{\profile@name}\\
-    \smallskip
+\def\@maketitle{%
+  \newpage
+  \begin{center}%
+    \tagtool{para/tag=H1}%
+    {\Huge \@title \par}%
+    \tagtool{para/tag=P}%
     \iconify{\faEnvelope}{\emaillink{\profile@email}}%
     \iconify{\faPhone}{\profile@phone}%
     % alternative icons: \faHome, \faMap, \faMapO, \faMapPin, \faMapPin
@@ -170,12 +172,13 @@
     \ifdefempty{\profile@website}{}{%
       \iconify{\faBookmark}{\websitelink{\profile@website}}%
     }%
-  \end{center}
+  \end{center}%
+  \par%
 }
 
 \AtBeginDocument{%
   \pdfinterwordspaceon
-  \printprofile
+  \maketitle
   \raggedright
 }
 
