@@ -66,18 +66,18 @@
 
 % Syntax: \@startsection{name}{level}{indent}{beforeskip}{afterskip}{style}
 \renewcommand\section{\@startsection{subsection}{2}{\z@}%
-  {-1ex \@plus -.5ex \@minus -.2ex}%      % Space before
-  {.5ex \@plus .2ex}%                     % Space after
+  {-.5ex \@plus -.2ex \@minus -.1ex}%
+  {1ex \@plus .2ex}%
   {\normalfont\large\color{customblue}\scshape}}  % Format
 
 \renewcommand\subsection{\@startsection{subsubsection}{3}{\z@}%
-  {-0.5ex \@plus -0.2ex \@minus -.2ex}%
-  {.2ex \@plus .1ex}%
+  {-.5ex \@plus -.2ex \@minus -.1ex }%
+  {.1pt \@plus 0pt \@minus -.1pt}%
   {\normalfont\normalsize\bfseries}}
 
 \renewcommand\subsubsection{\@startsection{paragraph}{4}{\z@}%
-  {-.2ex \@plus -.1ex \@minus -.1ex}%
-  {.1ex \@plus .1ex}%
+  {-.5ex \@plus -.2ex \@minus -.1ex}%
+  {.1pt \@plus 0pt \@minus -.1pt}%
   {\normalfont\normalsize\slshape}}
 
 %
