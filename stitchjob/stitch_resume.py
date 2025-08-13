@@ -135,14 +135,14 @@ class Section:
             self.children.append(obj)
 
     def to_latex(self) -> str:
-        output = f"\\section*{{{escape_tex(self.heading)}}}\n"
+        output = f"\\section{{{escape_tex(self.heading)}}}\n"
         for child in self.children:
             output += child.to_latex() + "\n"
         return output
 
 class EducationSection(Section):
     def to_latex(self) -> str:
-        output = f"\\section*{{{escape_tex(self.heading)}}}\n"
+        output = f"\\section{{{escape_tex(self.heading)}}}\n"
         output += "\\begin{education}\n"
         for child in self.children:
             output += child.to_latex() + "\n"
