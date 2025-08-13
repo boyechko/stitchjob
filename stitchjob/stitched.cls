@@ -114,7 +114,9 @@
   \end{itemize}%
 }
 
-\newcommand{\blurb}[1]{\textit{#1}}
+\newcommand{\blurb}[1]{\newline\textit{#1}}
+
+% Skills
 
 \RequirePackage{multicol}
 \newenvironment{skills}{%
