@@ -95,12 +95,15 @@
   \item {\textbf{#1} \textmd{(#2), #3, #4 \hfill \textcolor{customblue}{#5}}\\}%
 }
 
+% Experience
+
 % Syntax: \experience{dates}{role}{organization}[location]
 \NewDocumentCommand{\experience}{ m m m o }{%
-  \subsection*{#2 \hfill \textmd{\textcolor{customblue}{#1}}%
-    \\%
-    \textmd{\textsl{#3\IfValueT{#4}{\IfBlankTF{#4}{}{ (#4)}}}}%
-  }
+  \subsection[#2 (#1)]{#2\hfill\textmd{\textcolor{customblue}{#1}}}%
+  \vspace{-1ex}%
+  \textmd{\textsl{#3\IfValueT{#4}{\IfBlankTF{#4}{}{ (#4)}}}}%
+}
+
 \newenvironment{duties}{%
   \vspace{1ex}
   \setlength{\itemsep}{0pt}
