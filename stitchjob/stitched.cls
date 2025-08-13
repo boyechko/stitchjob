@@ -60,17 +60,22 @@
 
 \setcounter{secnumdepth}{0}
 
-\renewcommand\section{\@startsection{section}{1}{\z@}%
+% Automatic tagging seems to map \section level to H1 rather than H2.
+% Incrementing the level argument to \@startsection does not influence the
+% behavior, so instead remap the sections to one level lower.
+
+% Syntax: \@startsection{name}{level}{indent}{beforeskip}{afterskip}{style}
+\renewcommand\section{\@startsection{subsection}{2}{\z@}%
   {-1ex \@plus -.5ex \@minus -.2ex}%      % Space before
   {.5ex \@plus .2ex}%                     % Space after
   {\normalfont\large\color{customblue}\scshape}}  % Format
 
-\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+\renewcommand\subsection{\@startsection{subsubsection}{3}{\z@}%
   {-0.5ex \@plus -0.2ex \@minus -.2ex}%
   {.2ex \@plus .1ex}%
   {\normalfont\normalsize\bfseries}}
 
-\renewcommand\subsubsection{\@startsection{subsubsection}{2}{\z@}%
+\renewcommand\subsubsection{\@startsection{paragraph}{4}{\z@}%
   {-.2ex \@plus -.1ex \@minus -.1ex}%
   {.1ex \@plus .1ex}%
   {\normalfont\normalsize\slshape}}
