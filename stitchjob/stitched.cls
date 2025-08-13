@@ -85,14 +85,19 @@
 % Education
 
 \newenvironment{education}{%
-  \begin{enumerate}[label={},left=0pt .. 0pt,itemindent=0pt,nosep]%
+  \vspace{1ex}
+  \setlength{\itemindent}{0pt}
+  \setlength{\itemsep}{0pt}
+  \setlength{\parskip}{0pt}
+  \setlength{\leftmargini}{2.5em}
+  \begin{description}%
 }{%
-  \end{enumerate}
+  \end{description}
 }
 
 % \degree{degree}{major}{institution}{location}
 \newcommand{\degree}[5]{%
-  \item {\textbf{#1} \textmd{(#2), #3, #4 \hfill \textcolor{customblue}{#5}}\\}%
+  \item[#1] {\textmd{(#2), #3, #4\hfill\textcolor{customblue}{#5}}\\}%
 }
 
 % Experience
