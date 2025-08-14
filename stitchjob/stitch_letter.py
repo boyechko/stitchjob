@@ -26,9 +26,9 @@ def stitch_letter(args: argparse.Namespace) -> None:
     if letter.signature_image:
         logging.debug(f"Using signature image '{letter.signature_image.name}'")
 
-    text = render_tex(letter)
+    tex = render_tex(letter)
     tex_path = determine_tex_path(args)
-    write_tex(tex_path, text)
+    write_tex(tex_path, latex_metadata() + tex)
 
     pdf_path = None
     if args.pdf or args.openpdf:

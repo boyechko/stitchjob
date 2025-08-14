@@ -76,7 +76,7 @@ ${letter.content}
 % endif
 % if letter.signature_image:
   \vspace{1ex}
-  \includegraphics[height=2em]{${letter.signature_image}}\\\
+  \includegraphics[height=2em,alt={${letter.contact['name']}'s signature}]{${letter.signature_image}}\\\
   \vspace{1ex}
 % else:
   \vspace{1em}

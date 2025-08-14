@@ -65,6 +65,15 @@ def write_tex(tex_path: Path, text: str) -> bool:
     except PermissionError as e:
         raise CannotWriteToTeXFileError(tex_path, "Permission denied") from e
 
+def latex_metadata() -> str:
+    text = r"""\DocumentMetadata{
+  testphase={phase-III,firstaid},
+  lang=en_US,
+  pdfstandard=ua-2,
+  pdfversion=2.0
+}"""
+    return text
+
 def maybe_compile_pdf(tex_path: Path) -> Path | None:
     try:
         logging.debug("Compiling PDF file...")

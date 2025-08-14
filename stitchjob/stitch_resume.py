@@ -17,7 +17,7 @@ def stitch_resume(args: argparse.Namespace):
 
     output_path = input_path.with_suffix(".tex")
     logging.debug(f"Stitching LaTeX file '{output_path}'")
-    write_tex(output_path, resume.to_latex())
+    write_tex(output_path, latex_metadata() + resume.to_latex())
 
     logging.debug(f"Ensuring '{RESUME_LATEX_CLASS.name}' is available")
     ensure_latex_class_available(output_path)
