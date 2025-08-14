@@ -6,6 +6,7 @@ address: 451 Mission Street, Suite 900
 location: San Francisco, CA
 closing: Best regards,
 signature: Riley K. Chen\\415-555-2938\\riley.chen@example.com
+signature_image: example_signature.png
 ---
 
 I'm excited to apply for the \textbf{Technical Writer} role at ByteSpring
