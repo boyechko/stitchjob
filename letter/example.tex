@@ -1,5 +1,9 @@
-% -*- mode: latex; -*-
-\documentclass[12pt]{article}
+\DocumentMetadata{
+  testphase={phase-III,firstaid},
+  lang=en_US,
+  pdfstandard=ua-2,
+  pdfversion=2.0
+}\documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage{parskip}
@@ -17,6 +21,13 @@
 \graphicspath{ {./} }
 
 \newcommand{\email}{riley.chen@example.com}
+
+\hypersetup{%
+  pdfauthor=Riley K. Chen,%
+  pdftitle={Cover Letter - Riley K. Chen},%
+  pdfdisplaydoctitle=true,%
+  pdfcreator=Stitchjob%
+}
 
 \begin{document}
 \pagenumbering{gobble}
@@ -67,7 +78,7 @@ Thank you for your consideration.
 
 \begin{flushleft}
   Best regards,\\  \vspace{1ex}
-  \includegraphics[height=2em]{example_signature.png}\\  \vspace{1ex}
+  \includegraphics[height=2em,alt={Riley K. Chen's signature}]{example_signature.png}\\  \vspace{1ex}
   Riley K. Chen\\415-555-2938\\riley.chen@example.com
 \end{flushleft}
 
