@@ -31,14 +31,6 @@ def stitch_resume(args: argparse.Namespace):
     elif args.openpdf:
         logging.error("PDF file not generated, cannot open")
 
-def write_tex(tex_path: Path, text: str) -> bool:
-    try:
-        tex_path.parent.mkdir(parents=True, exist_ok=True)
-        tex_path.write_text(text, encoding="utf-8")
-        return True
-    except PermissionError as e:
-        raise CannotWriteToTeXFileError(tex_path, "Permission denied") from e
-
 def ensure_latex_class_available(tex_path: Path):
     """Ensure that 'stitched.cls' is available in TeX file's directory."""
     cls_src = files("stitchjob") / "stitched.cls"

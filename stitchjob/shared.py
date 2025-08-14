@@ -56,6 +56,15 @@ def smarten_tex_quotes(text: str) -> str:
     text = re.sub(r"'(.+?)'", r"`\1'", text)
     return text
 
+def write_tex(tex_path: Path, text: str) -> bool:
+    try:
+        logging.debug(f"Writing to TeX file '{tex_path}'")
+        tex_path.parent.mkdir(parents=True, exist_ok=True)
+        tex_path.write_text(text, encoding="utf-8")
+        return True
+    except PermissionError as e:
+        raise CannotWriteToTeXFileError(tex_path, "Permission denied") from e
+
 def maybe_compile_pdf(tex_path: Path) -> Path | None:
     try:
         logging.debug("Compiling PDF file...")

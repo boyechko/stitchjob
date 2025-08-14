@@ -28,7 +28,6 @@ def stitch_letter(args: argparse.Namespace) -> None:
 
     text = render_tex(letter)
     tex_path = determine_tex_path(args)
-    logging.debug(f"Writing LaTeX file '{tex_path}'")
     write_tex(tex_path, text)
 
     pdf_path = None
@@ -120,15 +119,3 @@ def determine_tex_path(args: argparse.Namespace) -> Path:
         return Path(args.input).with_suffix(".tex")
     else:
         return Path(args.output)
-
-def write_tex(tex_path: Path, text: str) -> Path:
-    try:
-        return _write_tex(tex_path, text)
-    except PermissionError as e:
-        raise CannotWriteToTeXFileError(tex_path, "Permission denied") from e
-
-def _write_tex(tex_path: Path, text: str) -> Path:
-    tex_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(tex_path, 'w') as file:
-        file.write(text)
-    return tex_path
