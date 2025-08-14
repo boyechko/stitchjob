@@ -80,7 +80,7 @@
 
   </section>
 
-  <section heading="Education">
+  <section type="education" heading="Education">
     <degree>
       <date>2022</date>
       <type>M.A.</type>
