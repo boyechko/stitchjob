@@ -56,14 +56,12 @@ class Resume:
             raise CannotReadResumeFileError(xml_file, "Permission denied") from e
 
     def to_latex(self) -> str:
-        output = "\\documentclass{stitched}\n"
-
-        output += self.contact.to_latex()
-
-        output += "\n\\begin{document}\n\n"
+        output = "\n\\documentclass{stitched}"
+        output += "\n" + self.contact.to_latex()
+        output += "\n\\begin{document}"
         for sec in self.sections:
-            output += sec.to_latex()
-        output += "\\end{document}\n"
+            output += "\n" + sec.to_latex()
+        output += "\n\n\\end{document}"
         return output
 
 class CannotParseXMLResumeError(StitchjobException):
@@ -92,7 +90,7 @@ class Contact:
         keys = []
         output = "\\setprofile{\n"
         for key, val in self.values.items():
-            keys.append(f"{key}={{{val}}}")
+            keys.append(f"  {key}={{{val}}}")
         output += ",\n".join(keys)
         output += "\n}\n"
         return output
@@ -127,18 +125,18 @@ class Section:
             self.children.append(obj)
 
     def to_latex(self) -> str:
-        output = f"\\section{{{escape_tex(self.heading)}}}\n"
+        output = f"\n\\section{{{escape_tex(self.heading)}}}\n"
         for child in self.children:
-            output += child.to_latex() + "\n"
+            output += "\n" + child.to_latex()
         return output
 
 class EducationSection(Section):
     def to_latex(self) -> str:
-        output = f"\\section{{{escape_tex(self.heading)}}}\n"
-        output += "\\begin{education}\n"
+        output = f"\\section{{{escape_tex(self.heading)}}}"
+        output += "\n\\begin{education}"
         for child in self.children:
-            output += child.to_latex() + "\n"
-        output += "\\end{education}\n"
+            output += "\n" + child.to_latex()
+        output += "\n\\end{education}"
         return output
 
 class Experience:
@@ -152,9 +150,7 @@ class Experience:
         self.items = [XmlHelper.text(item) for item in element.findall("items/item")]
 
     def to_latex(self) -> str:
-        output = r"""
-        \experience{%(begin)s -- %(end)s}{%(title)s}{%(organization)s}[%(location)s]
-        """ % {
+        output = r"\experience{%(begin)s -- %(end)s}{%(title)s}{%(organization)s}[%(location)s]" % {
             'title': escape_tex(self.title),
             'begin': escape_tex(self.begin),
             'end': escape_tex(self.end),
@@ -162,10 +158,10 @@ class Experience:
             'location': escape_tex(self.location)
         }
         if self.blurb:
-            output += f"\\blurb{{{smarten_tex_quotes(escape_tex(self.blurb))}}}\n"
-        output += "\\begin{duties}\n"
+            output += f"\n\\blurb{{{smarten_tex_quotes(escape_tex(self.blurb))}}}"
+        output += "\n\\begin{duties}\n"
         for item in self.items:
-            output += f"  \\item {smarten_tex_quotes(escape_tex(item))}\n"
+            output += f"\\item {smarten_tex_quotes(escape_tex(item))}\n"
         output += "\\end{duties}\n"
         return output
 
@@ -184,7 +180,7 @@ class Degree:
         school = escape_tex(self.school)
         location = escape_tex(self.location)
 
-        return f"\\degree{{{type}}}{{{field}}}{{{school}}}{{{location}}}{{{date}}}\n"
+        return f"\\degree{{{type}}}{{{field}}}{{{school}}}{{{location}}}{{{date}}}"
 
 class SkillSection:
     def __init__(self, element: ET.Element):
@@ -194,7 +190,7 @@ class SkillSection:
         output = f"\\begin{{skills}}\n"
         for skill in self.skills:
             output += f"\\item {skill.to_latex()}\n"
-        output += "\n\\end{skills}\n"
+        output += "\\end{skills}"
         return output
 
 class Skill:
